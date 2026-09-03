@@ -149,7 +149,7 @@ async function main() {
   });
 
   console.log(`Default admin ready: ${adminUser.email} (${adminUser.id})`);
-  console.log("Seeding completed successfully!");
+  console.log("🚀 Seeding completed successfully!");
 }
 
 main()
