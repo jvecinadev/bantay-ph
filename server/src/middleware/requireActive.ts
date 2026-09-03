@@ -1,7 +1,11 @@
-import type { RequestHandler } from "express";
+import type { RequestHandler, Request, Response, NextFunction } from "express";
 import { HttpError } from "../common/httpErrors";
 
-export const requireActiveAccount: RequestHandler = (req, _res, next) => {
+export const requireActiveAccount: RequestHandler = (
+    req: Request, 
+    _res: Response, 
+    next: NextFunction
+) => {
   if (!req.auth) return next(new HttpError(401, "Unauthorized", { code: "AUTH_REQUIRED" }));
 
   if (req.auth.status !== "ACTIVE") {
