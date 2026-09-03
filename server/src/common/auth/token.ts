@@ -1,6 +1,5 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import { env } from "../../config/env";
-import { HttpError } from "../errors/httpErrors";
 
 const JWT_SECRET = env.jwt; 
 const JWT_EXPIRES_IN = (env.expdate ?? "1d") as SignOptions["expiresIn"];
