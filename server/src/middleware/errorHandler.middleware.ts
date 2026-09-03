@@ -1,12 +1,7 @@
-import type { ErrorRequestHandler, Errback, Request, Response, NextFunction } from "express";
+import type { ErrorRequestHandler } from "express";
 import { HttpError } from "../common/httpErrors";
 
-export const errorHandler: ErrorRequestHandler = (
-    err: Errback, 
-    _req: Request, 
-    res: Response, 
-    _next: NextFunction
-) => {
+export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 
   if (err instanceof HttpError) {
     return res.status(err.status).json({
