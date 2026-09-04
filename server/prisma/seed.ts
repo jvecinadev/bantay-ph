@@ -1,4 +1,4 @@
-// prisma/seed.ts
+
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
@@ -27,7 +27,7 @@ async function main() {
     rolesByName[role.name] = role;
   }
 
-  console.log("✅ Roles seeded");
+  console.log("Roles seeded");
 
 
   const permissionsToSeed = [
@@ -136,7 +136,7 @@ async function main() {
       name: "System Admin",
       roleId: adminRoleId,
       status: "ACTIVE",
-      passwordHash: adminPasswordHash, // keep in sync with your login hashing
+      passwordHash: adminPasswordHash,
     },
     create: {
       name: "System Admin",
@@ -149,7 +149,7 @@ async function main() {
   });
 
   console.log(`Default admin ready: ${adminUser.email} (${adminUser.id})`);
-  console.log("🚀 Seeding completed successfully!");
+  console.log("Seeding completed successfully!");
 }
 
 main()
