@@ -13,7 +13,7 @@ app.use(cors({
         credentials: true
 }))
 app.use(cookieParser())
-app.use("api", routes)
+app.use("/api", routes)
 
 app.use(errorHandler)
 
