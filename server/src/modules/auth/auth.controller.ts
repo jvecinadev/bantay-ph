@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { registerUserService, loginUserService, getCurrentUserService, findUserByEmailService } from './auth.services'
 import { RegisterBody, LoginBody } from './auth.validation'
-import { getAuthCookieOptions, getAuthCookieName } from '../../common/auth/cookie'
+import { getAuthCookieOptions, getAuthCookieName, getClearAuthCookieOptions } from '../../common/auth/cookie'
 import { asyncHandler } from '../../common/errors/asyncHandler'
 
 export const register = asyncHandler ( async ( 
@@ -62,4 +62,42 @@ export const login = asyncHandler ( async (
             },
         }   
     })
+})
+
+export const getCurrentUser = asyncHandler ( async (
+    req: Request,
+    res: Response
+) => {
+    
+    const user = await getCurrentUserService(req.auth!.id)
+
+    res.status(200).json({
+        message: "Current User",
+        data: {
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                status: user.status,
+                role: {
+                    id: user.role.id,
+                    name: user.role.name
+                },
+                permissions: user.permissions
+            }
+        }
+    })
+})
+
+export const logout = asyncHandler( async (
+    req: Request,
+    res: Response
+) => {
+    
+    res.clearCookie(getAuthCookieName(), getClearAuthCookieOptions())
+
+    res.status(200).json({
+        message: "Logout successful",
+        data: null
+    });
 })
