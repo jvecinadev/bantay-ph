@@ -1,7 +1,7 @@
 import type { RequestHandler, Request, Response, NextFunction } from "express";
 import { prisma } from "../db/prisma";
 import { HttpError } from "../common/errors/httpErrors";
-import { verifyAccessToken } from "../common/errors/jwt";
+import { verifyAccessToken } from "../common/auth/jwt";
 import { env } from "../config/env";
 
 export const requireAuth: RequestHandler = async (
