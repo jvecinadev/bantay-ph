@@ -115,6 +115,7 @@ model Report {
   reporter   User  @relation("ReporterRelation", fields: [reporterId], references: [id], onDelete: Restrict)
   assignedTo User? @relation("AssigneeRelation", fields: [assignedToId], references: [id], onDelete: SetNull)
 
+  photos ReportPhoto[]
   verifications ReportVerification[]
   comments      ReportComment[]
   statusHistory ReportStatusHistory[]
@@ -193,4 +194,20 @@ model AuditLog {
   @@index([entityType, entityId])
 
   @@map("audit_logs")
+}
+
+model ReportPhoto {
+  id             String   @id @default(uuid())
+  reportId       String   @map("report_id")
+  url            String   @db.Text
+  provider       String?  @db.VarChar(50)
+  providerFileId String?  @map("provider_file_id") @db.VarChar(255)
+  mimeType       String?  @map("mime_type") @db.VarChar(100)
+  sizeBytes      Int?     @map("size_bytes")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+  @@map("report_photos")
 }
