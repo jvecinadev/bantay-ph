@@ -58,7 +58,7 @@ export const createReportSchema = z.object({
 });
 
 
-export const getUserReportSchema = z.object({
+export const getMyReportSchema = z.object({
   query: z
     .object({
       page: z.coerce.number().int().min(1).default(1),
@@ -90,7 +90,7 @@ export type CreateReportBody = z.infer<
 >["body"];
 
 export type GetUserReportQuery = z.infer<
-  typeof getUserReportSchema
+  typeof getMyReportSchema
 >["query"];
 
 export type GetReportByIdParams = z.infer<
