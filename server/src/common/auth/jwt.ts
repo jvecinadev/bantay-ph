@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import { HttpError } from "./httpErrors";
-import { env } from "../config/env";
+import { HttpError } from "../errors/httpErrors";
+import { env } from "../../config/env";
 
 export function getJwtSecret(): string {
   const secret = env.jwt;

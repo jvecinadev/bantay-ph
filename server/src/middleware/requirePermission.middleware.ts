@@ -1,6 +1,6 @@
 
 import { RequestHandler, Request, Response, NextFunction } from "express";
-import { HttpError } from "../common/httpErrors";
+import { HttpError } from "../common/errors/httpErrors";
 
 export const requrePermission = (permission: string): RequestHandler => 
     (
