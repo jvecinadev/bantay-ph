@@ -13,8 +13,6 @@ export const validate =
       }) as Record<string, any>;
 
       if (parsed.body) req.body = parsed.body;
-      if (parsed.params) req.params = parsed.params;
-      if (parsed.query) req.query = parsed.query;
 
       res.locals.validated = parsed;
       next();

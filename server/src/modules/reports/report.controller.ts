@@ -29,7 +29,7 @@ export const createReport = asyncHandler(async (req: Request, res: Response) => 
 
 export const getMyReports = asyncHandler(async (req: Request, res: Response) => {
   const { query } = res.locals.validated as { query: GetUserReportQuery };
-
+  console.log(query)
   const result = await getMyReportsService(req.auth!.id, query);
 
   res.status(200).json({
