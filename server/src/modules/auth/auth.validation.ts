@@ -22,7 +22,7 @@ export const registerSchema = z.object({
     body: z
     .object({
       name: z.string().min(1).max(80),
-      email: z.string().trim().toLowerCase().email("Invalid email"),
+      email: z.email("Invalid email").trim().toLowerCase(),
       password: passwordSchema,
       confirmPassword: z.string().min(1, "Confirm password is required"),
     })
@@ -36,13 +36,15 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   body: z.object({
     email: z
-      .string()
+      .email("Invalid email")
       .trim()
-      .toLowerCase()
-      .email("Invalid email"),
+      .toLowerCase(),
 
     password: z
       .string()
       .min(1, "Password is required"),
   }).strict(),
 });
+
+export type RegisterBody = z.infer<typeof registerSchema>["body"]
+export type LoginBody = z.infer<typeof loginSchema>["body"]
