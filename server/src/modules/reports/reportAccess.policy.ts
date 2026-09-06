@@ -3,7 +3,7 @@ import { HttpError } from "../../common/errors/httpErrors";
 import { Actor } from "../../types/report.types";
 import { ReportStatus } from "@prisma/client";
 
-export const FEED_VISIBLE_STATUSES: ReportStatus[] = ["VERIFIED"];
+export const FEED_VISIBLE_STATUSES: ReportStatus[] = ["VERIFIED", "ASSIGNED", "IN_PROGRESS", "RESOLVED"];
 
 export const assertCanReadReport = async (reportId: string, actor: Actor) => {
   const report = await prisma.report.findUnique({
