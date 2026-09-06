@@ -34,6 +34,7 @@ async function main() {
     { name: "report:create", description: "Can submit a new report" },
     { name: "report:read", description: "Can read reports (general)" },
     { name: "report:read:own", description: "Can read own reports only" },
+    { name: "report:feed:read", description: "Can read verified reports"},
 
     // Verification
     { name: "verification:queue:read", description: "Can view reports pending verification" },
@@ -76,7 +77,7 @@ async function main() {
   const allPermissionNames = permissionsToSeed.map((p) => p.name);
 
   const rolePermissionMap: Record<string, string[]> = {
-    RESIDENT: ["report:create", "report:read:own", "report:comment", "history:read:own"],
+    RESIDENT: ["report:create", "report:read:own", "report:comment", "history:read:own", "report:feed:read"],
 
     VALIDATOR: [
       "report:read",
@@ -85,6 +86,7 @@ async function main() {
       "report:verify",
       "report:comment",
       "history:read",
+      "report:feed:read"
     ],
 
     BARANGAY_STAFF: [
@@ -95,6 +97,7 @@ async function main() {
       "report:resolve",
       "report:comment",
       "history:read",
+      "report:feed:read"
     ],
 
     ADMIN: allPermissionNames,
