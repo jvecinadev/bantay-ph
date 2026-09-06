@@ -14,7 +14,7 @@ router.post("/", requirePermission("report:create"), validate(createReportSchema
 router.get("/mine", requirePermission("report:read:own"), validate(getMyReportSchema), getMyReports)
 router.get("/:id", validate(getReportByIdSchema), getReportById)
 
-router.get("/staff/queue", requirePermission("staff_queue:read"), validate(staffQueueSchema), getStaffQueue)
+router.get("/staff/queue", requirePermission("report:staff_queue:read"), validate(staffQueueSchema), getStaffQueue)
 router.post("/:id/assign", requirePermission("report:assign"), validate(staffAssignSchema), assignToSelf)
 router.patch("/:id/status", requirePermission("report:update_status"), validate(updateAssignedStatusSchema), updateAssignedStatus)
 
