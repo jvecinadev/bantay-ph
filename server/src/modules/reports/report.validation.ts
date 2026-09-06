@@ -101,7 +101,10 @@ export const updateAssignedStatusSchema = z.object({
   body: z.object({
     status: z.enum(["IN_PROGRESS", "RESOLVED"]),
     remarks: z.string().trim().max(300, "Maximum of 300 characters").optional()
-  }).strict()
+  }).strict() ,
+  params: z.object({
+    id: z.uuid().trim()
+  })
 })
 
 export type CreateReportBody = z.infer<
