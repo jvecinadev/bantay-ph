@@ -84,6 +84,12 @@ export const getReportByIdSchema = z.object({
     .strict(),
 });
 
+export const staffAssignSchema = z.object({
+  params: z.object({
+    id: z.uuid().trim()
+  })
+})
+
 
 export type CreateReportBody = z.infer<
   typeof createReportSchema

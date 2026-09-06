@@ -14,4 +14,8 @@ router.post("/", requirePermission("report:create"), validate(createReportSchema
 router.get("/mine", requirePermission("report:read:own"), validate(getMyReportSchema), getMyReports)
 router.get("/:id", validate(getReportByIdSchema), getReportById)
 
+router.get("/staff/queue", requirePermission("staff_queue:read"))
+router.post("/:id/assign", requirePermission("report:assign"))
+router.patch("/:id/status", requirePermission("report:update_status"))
+
 export default router;
