@@ -1,7 +1,7 @@
 import { Router } from "express";
 import authRoutes from './modules/auth/auth.routes'
 import reportRoutes from './modules/reports/report.routes'
-import verificationRoutes from './modules/reports/report.routes'
+import verificationRoutes from './modules/verifications/verification.routes'
 
 const router = Router()
 
