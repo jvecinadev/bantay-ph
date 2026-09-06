@@ -84,6 +84,28 @@ export const getReportByIdSchema = z.object({
     .strict(),
 });
 
+export const staffAssignSchema = z.object({
+  params: z.object({
+    id: z.uuid().trim()
+  })
+})
+
+export const staffQueueSchema = z.object({
+  query: z.object({
+      page: z.coerce.number().int().min(1).default(1),
+      limit: z.coerce.number().int().min(1).max(100).default(10),
+  })
+})
+
+export const updateAssignedStatusSchema = z.object({
+  body: z.object({
+    status: z.enum(["IN_PROGRESS", "RESOLVED"]),
+    remarks: z.string().trim().max(300, "Maximum of 300 characters").optional()
+  }).strict() ,
+  params: z.object({
+    id: z.uuid().trim()
+  })
+})
 
 export type CreateReportBody = z.infer<
   typeof createReportSchema
@@ -96,3 +118,11 @@ export type GetUserReportQuery = z.infer<
 export type GetReportByIdParams = z.infer<
   typeof getReportByIdSchema
 >["params"];
+
+export type StaffQueueQuery = z.infer<
+  typeof staffQueueSchema
+>["query"]
+
+export type UpdateStatusBody = z.infer<
+  typeof updateAssignedStatusSchema
+>["body"]
