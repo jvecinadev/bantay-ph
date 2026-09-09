@@ -1,6 +1,7 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import helmet from 'helmet'
 import { errorHandler } from './middleware/errorHandler.middleware'
 import routes from "./routes"
 
@@ -13,6 +14,7 @@ app.use(cors({
         credentials: true
 }))
 app.use(cookieParser())
+app.use(helmet())
 app.use("/api", routes)
 
 app.use(errorHandler)
