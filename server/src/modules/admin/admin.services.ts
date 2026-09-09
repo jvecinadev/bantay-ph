@@ -1,15 +1,8 @@
-// src/modules/admin/admin.services.ts
+
 import { prisma } from "../../db/prisma";
 import { HttpError } from "../../common/errors/httpErrors";
 import { Prisma, UserStatus } from "@prisma/client";
-
-export type ListUsersQuery = {
-  page: number;
-  limit: number;
-  status?: UserStatus;
-  role?: "RESIDENT" | "VALIDATOR" | "BARANGAY_STAFF" | "ADMIN";
-  search?: string;
-};
+import { ListUsersQuery } from "./admin.validation";
 
 export type ListAuditLogsQuery = {
   page: number;

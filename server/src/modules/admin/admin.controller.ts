@@ -2,6 +2,7 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../common/errors/asyncHandler";
 import type { UserStatus } from "@prisma/client";
+import { ListUsersQuery } from "./admin.validation";
 
 import {
   listUsersService,
@@ -13,13 +14,7 @@ import {
 
 export const listUsers = asyncHandler(async (req: Request, res: Response) => {
   const { query } = res.locals.validated as {
-    query: {
-      page: number;
-      limit: number;
-      status?: UserStatus;
-      role?: "RESIDENT" | "VALIDATOR" | "BARANGAY_STAFF" | "ADMIN";
-      search?: string;
-    };
+    query: ListUsersQuery
   };
 
   const result = await listUsersService(query);
