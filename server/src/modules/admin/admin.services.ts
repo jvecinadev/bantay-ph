@@ -2,17 +2,9 @@
 import { prisma } from "../../db/prisma";
 import { HttpError } from "../../common/errors/httpErrors";
 import { Prisma, UserStatus } from "@prisma/client";
-import { ListUsersQuery } from "./admin.validation";
+import { ListUsersQuery, ListAuditLogsQuery } from "./admin.validation";
 import { computePaging } from "../../common/utility/computePaging";
 
-export type ListAuditLogsQuery = {
-  page: number;
-  limit: number;
-  action?: string;
-  entityType?: string;
-  entityId?: string;
-  userId?: string;
-};
 
 export const listUsersService = async (query: ListUsersQuery) => {
   const { page, limit, skip } = computePaging(query.page, query.limit);
