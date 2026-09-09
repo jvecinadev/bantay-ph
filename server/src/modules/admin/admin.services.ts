@@ -3,6 +3,7 @@ import { prisma } from "../../db/prisma";
 import { HttpError } from "../../common/errors/httpErrors";
 import { Prisma, UserStatus } from "@prisma/client";
 import { ListUsersQuery } from "./admin.validation";
+import { computePaging } from "../../common/utility/computePaging";
 
 export type ListAuditLogsQuery = {
   page: number;
@@ -13,18 +14,8 @@ export type ListAuditLogsQuery = {
   userId?: string;
 };
 
-const paginate = (page: number, limit: number) => {
-  const safePage = Number.isFinite(page) && page >= 1 ? page : 1;
-  const safeLimit = Number.isFinite(limit) && limit >= 1 ? limit : 10;
-  return {
-    page: safePage,
-    limit: safeLimit,
-    skip: (safePage - 1) * safeLimit,
-  };
-};
-
 export const listUsersService = async (query: ListUsersQuery) => {
-  const { page, limit, skip } = paginate(query.page, query.limit);
+  const { page, limit, skip } = computePaging(query.page, query.limit);
 
   const search = query.search?.trim();
 
@@ -138,7 +129,6 @@ export const updateUserStatusService = async (args: {
 }) => {
   const { adminId, targetUserId, status } = args;
 
-  // prevent lockout: admin cannot deactivate themselves
   if (adminId === targetUserId && status === "INACTIVE") {
     throw new HttpError(409, "You cannot deactivate your own account", {
       code: "ADMIN_SELF_DEACTIVATE_BLOCKED",
@@ -186,7 +176,7 @@ export const updateUserStatusService = async (args: {
 };
 
 export const listAuditLogsService = async (query: ListAuditLogsQuery) => {
-  const { page, limit, skip } = paginate(query.page, query.limit);
+  const { page, limit, skip } = computePaging(query.page, query.limit);
 
   const where: Prisma.AuditLogWhereInput = {
     ...(query.action ? { action: query.action } : {}),
