@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { execSync } from "child_process";
 import { prisma } from "../src/db/prisma";
+import { beforeAll, afterAll } from "@jest/globals";
 
 dotenv.config({ path: ".env.test" });
 
