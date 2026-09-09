@@ -1,6 +1,6 @@
 # Bantay PH — Backend API
 
-**Bantay PH** ("bantay" = watch/guard in Filipino) is a community issue-reporting backend for barangay-level governance. Residents report local problems — potholes, flooding, garbage, broken streetlights — and the report moves through a verification and resolution pipeline handled by validators and barangay staff, with full role-based access control and an audit trail.
+**Bantay PH** ("bantay" = watch/guard in Filipino) is a community issue-reporting backend for barangay-level governance. Residents report local problems potholes, flooding, garbage, broken streetlights and the report moves through a verification and resolution pipeline handled by validators and barangay staff, with full role-based access control and an audit trail.
 
 This repository contains the **backend API only**. The frontend is a separate, upcoming project.
 
