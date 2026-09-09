@@ -14,7 +14,7 @@ router.get("/health", (req, res) => {
 
 router.use("/auth", authRoutes)
 router.use("/reports", reportRoutes)
-router.use("/verification", verificationRoutes)
+router.use("/verifications", verificationRoutes)
 router.use("/admin", adminRoutes)
 
 export default router;
