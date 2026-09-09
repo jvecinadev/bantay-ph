@@ -24,4 +24,14 @@ export const listUserSchema = z.object({
     })
 })
 
+export const updateUserRoleSchema = z.object({
+    params: z.object({
+        id: z.uuid().trim()
+    }),
+    body: z.object({
+        roleName: z.enum(ROLE)
+    })
+})
+
 export type ListUsersQuery = z.infer<typeof listUserSchema>["query"]
+export type UpdateUserRole = z.infer<typeof updateUserRoleSchema>
