@@ -1,1 +1,47 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #0B3C8C;
+  --color-primary-dark: #082B66;
+  --color-primary-light: #E6EDF9;
+
+  --color-accent: #F5B700;
+  --color-accent-light: #FEF3D6;
+
+  --color-danger: #C81E2C;
+  --color-danger-light: #FBE4E6;
+
+  --color-success: #1F9D55;
+  --color-success-light: #E3F5EA;
+
+  --color-background: #F7F8FA;
+  --color-surface: #FFFFFF;
+  --color-border: #E2E5EA;
+
+  --color-text-primary: #1B1F27;
+  --color-text-secondary: #5C6370;
+
+  --color-status-reported: #5C6370;
+  --color-status-reported-bg: #E2E5EA;
+
+  --color-status-under-verification: #0B3C8C;
+  --color-status-under-verification-bg: #E6EDF9;
+
+  --color-status-verified: #F5B700;
+  --color-status-verified-bg: #FEF3D6;
+
+  --color-status-assigned: #2F3A8F;     
+  --color-status-assigned-bg: #E9ECFF;
+
+  --color-status-in-progress: #E8823A;
+  --color-status-in-progress-bg: #FCE9DD;
+
+  --color-status-resolved: #1F9D55;
+  --color-status-resolved-bg: #E3F5EA;
+
+  --color-status-rejected: #C81E2C;
+  --color-status-rejected-bg: #FBE4E6;
+
+  --color-status-duplicate: #5C6370;
+  --color-status-duplicate-bg: #F7F8FA;
+}
