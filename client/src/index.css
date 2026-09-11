@@ -1,4 +1,4 @@
-/* src/index.css (Tailwind v4) */
+
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -52,7 +52,6 @@
 
 .dark {
   @theme {
-    /* Core palette */
     --color-primary: #4D7CFF;
     --color-primary-dark: #3B62CC;
     --color-primary-light: #142547;
@@ -73,7 +72,6 @@
     --color-text-primary: #F2F4F8;
     --color-text-secondary: #B7C0CC;
 
-    /* Status badge helpers */
     --color-status-reported: #B7C0CC;
     --color-status-reported-bg: #1A2434;
 
