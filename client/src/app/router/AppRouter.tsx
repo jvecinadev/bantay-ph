@@ -1,20 +1,20 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./routes";
 
-import { AppLayout } from "../layout/AppLayout";
+import AppLayout from "../layout/AppLayout";
 import  PublicLayout  from "../layout/PublicLayout";
 
-import { LoginPage } from "../../pages/LoginPage";
-import { RegisterPage } from "../../pages/RegisterPage";
-import { FeedPage } from "../../pages/FeedPage";
-import { NewReportPage } from "../../pages/NewReportPage";
-import { MyReportsPage } from "../../pages/MyReportsPage";
-import { VerificationQueuePage } from "../../pages/VerificationQueuePage";
-import { StaffQueuePage } from "../../pages/StaffQueuePage";
-import { UsersPage } from "../../pages/UsersPage";
-import { AuditLogsPage } from "../../pages/AuditLogsPage";
-import { UnauthorizedPage } from "../../pages/UnauthorizedPage";
-import { NotFoundPage } from "../../pages/NotFoundPage";
+import  LoginPage  from "../../pages/Login";
+import RegisterPage  from "../../pages/RegisterPage";
+import FeedPage from "../../pages/FeedPage";
+import  NewReportPage from "../../pages/NewReportPage";
+import MyReportsPage from "../../pages/MyReportsPage";
+import VerificationQueuePage from "../../pages/VerificationQueuePage";
+import StaffQueuePage from "../../pages/StaffQueuePage";
+import UsersPage from "../../pages/UsersPage";
+import AuditLogsPage from "../../pages/AuditLogsPage";
+import UnauthorizedPage from "../../pages/UnauthorizedPage";
+import NotFoundPage from "../../pages/NotFoundPage";
 
 export function AppRouter() {
   return (
