@@ -52,7 +52,6 @@
 
 .dark {
   @theme {
-    /* Core palette */
     --color-primary: #4D7CFF;
     --color-primary-dark: #3B62CC;
     --color-primary-light: #142547;
