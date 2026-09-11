@@ -1,6 +1,10 @@
+/* src/index.css (Tailwind v4) */
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
+ 
   --color-primary: #0B3C8C;
   --color-primary-dark: #082B66;
   --color-primary-light: #E6EDF9;
@@ -30,7 +34,7 @@
   --color-status-verified: #F5B700;
   --color-status-verified-bg: #FEF3D6;
 
-  --color-status-assigned: #2F3A8F;     
+  --color-status-assigned: #2F3A8F;
   --color-status-assigned-bg: #E9ECFF;
 
   --color-status-in-progress: #E8823A;
@@ -44,4 +48,54 @@
 
   --color-status-duplicate: #5C6370;
   --color-status-duplicate-bg: #F7F8FA;
+}
+
+.dark {
+  @theme {
+    /* Core palette */
+    --color-primary: #4D7CFF;
+    --color-primary-dark: #3B62CC;
+    --color-primary-light: #142547;
+
+    --color-accent: #F5B700;
+    --color-accent-light: #3A2B00;
+
+    --color-danger: #FF5B67;
+    --color-danger-light: #3A1216;
+
+    --color-success: #34D17A;
+    --color-success-light: #0F2A1B;
+
+    --color-background: #0B1220;
+    --color-surface: #101A2B;
+    --color-border: #223047;
+
+    --color-text-primary: #F2F4F8;
+    --color-text-secondary: #B7C0CC;
+
+    /* Status badge helpers */
+    --color-status-reported: #B7C0CC;
+    --color-status-reported-bg: #1A2434;
+
+    --color-status-under-verification: #4D7CFF;
+    --color-status-under-verification-bg: #142547;
+
+    --color-status-verified: #F5B700;
+    --color-status-verified-bg: #3A2B00;
+
+    --color-status-assigned: #AEBBFF;
+    --color-status-assigned-bg: #1A2452;
+
+    --color-status-in-progress: #FFA463;
+    --color-status-in-progress-bg: #2D1B10;
+
+    --color-status-resolved: #34D17A;
+    --color-status-resolved-bg: #0F2A1B;
+
+    --color-status-rejected: #FF5B67;
+    --color-status-rejected-bg: #3A1216;
+
+    --color-status-duplicate: #B7C0CC;
+    --color-status-duplicate-bg: #0B1220;
+  }
 }
