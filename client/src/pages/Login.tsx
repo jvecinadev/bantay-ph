@@ -9,36 +9,28 @@ type LocationState = {
 };
 
 const LoginPage = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const user = useAuthStore((s) => s.user);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const user = useAuthStore((s) => s.user);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+    const loginMutation = useLoginMutation();
 
-  const loginMutation = useLoginMutation();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
-  const from = useMemo(() => {
-    const state = location.state as LocationState | null;
-    return state?.from ?? ROUTES.root;
-  }, [location.state]);
+    const from = useMemo(() => {
+      const state = location.state as LocationState | null;
+      return state?.from ?? ROUTES.root;
+    }, [location.state]);
 
-  useEffect(() => {
-    if (user) {
-      navigate(ROUTES.root, { replace: true });
-    }
-  }, [user, navigate]);
+    useEffect(() => {
+      if (user) navigate(from, { replace: true });
+    }, [user, from, navigate]);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    loginMutation.reset();
-
-    try {
+    const onSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
       await loginMutation.mutateAsync({ email, password });
-      navigate(from, { replace: true });
-    } catch {
-    }
-  };
+    };
 
   return (
       <div className="min-h-dvh bg-background lg:grid lg:grid-cols-2">

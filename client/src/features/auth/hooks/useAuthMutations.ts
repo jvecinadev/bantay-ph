@@ -10,7 +10,10 @@ export const useLoginMutation = () => {
   return useMutation<void, ApiError, LoginBody>({
     mutationFn: async (body) => {
       await authApi.login(body);
-      await qc.refetchQueries({ queryKey: ["auth", "me"] }); 
+
+
+      await qc.invalidateQueries({ queryKey: ["auth", "me"] });
+      await qc.refetchQueries({ queryKey: ["auth", "me"], type: "all" });
     },
   });
 };
@@ -21,7 +24,9 @@ export const useRegisterMutation = () => {
   return useMutation<void, ApiError, RegisterBody>({
     mutationFn: async (body) => {
       await authApi.register(body);
-      await qc.refetchQueries({ queryKey: ["auth", "me"] });
+
+      await qc.invalidateQueries({ queryKey: ["auth", "me"] });
+      await qc.refetchQueries({ queryKey: ["auth", "me"], type: "all" });
     },
   });
 };
