@@ -20,13 +20,13 @@ import UnauthorizedPage from "../../pages/UnauthorizedPage";
 import NotFoundPage from "../../pages/NotFoundPage";
 
 const PERMS = {
-  reportCreate: [],
-  reportReadOwn: [],
-  verificationQueue: [],
-  staffQueue: [],
-  adminUsers: [],
-  adminAudit: [],
-} as const;
+  reportCreate: [] as string[],
+  reportReadOwn: [] as string[],
+  verificationQueue: [] as string[],
+  staffQueue: [] as string[],
+  adminUsers: [] as string[],
+  adminAudit: [] as string[],
+} ;
 
 const router = createBrowserRouter([
   {
