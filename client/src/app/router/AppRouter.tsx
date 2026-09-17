@@ -6,6 +6,7 @@ import AppLayout from "../layout/AppLayout";
 
 import RequireAuth from "./guards/RequireAuth";
 import RequirePermissions from "./guards/RequirePermissions";
+import RedirectIfAuthed from "./guards/RedirectIfAuthed";
 
 import LoginPage from "../../pages/Login";
 import RegisterPage from "../../pages/RegisterPage";
@@ -20,6 +21,7 @@ import UnauthorizedPage from "../../pages/UnauthorizedPage";
 import NotFoundPage from "../../pages/NotFoundPage";
 import HomeRedirect from "../../pages/HomeRedirect";
 
+
 const PERMS = {
   feedRead: ["report:feed:read"],
   reportCreate: ["report:create"],
@@ -32,11 +34,16 @@ const PERMS = {
 
 const router = createBrowserRouter([
   {
-    element: <PublicLayout />,
+    element: <RedirectIfAuthed/>,
     children: [
-      { path: ROUTES.login, element: <LoginPage /> },
-      { path: ROUTES.register, element: <RegisterPage /> },
-    ],
+      {
+          element: <PublicLayout />,
+          children: [
+            { path: ROUTES.login, element: <LoginPage /> },
+            { path: ROUTES.register, element: <RegisterPage /> },
+        ],
+      }
+    ]
   },
   {
     element: <RequireAuth />,
