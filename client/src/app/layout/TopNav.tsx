@@ -1,25 +1,33 @@
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../router/routes";
+import { useLogoutMutation } from "../../features/auth/hooks/useAuthMutations";
+
 type TopNavProps = {
   onOpenSidebar: () => void;
 };
 
 const TopNav = ({ onOpenSidebar }: TopNavProps) => {
+  const navigate = useNavigate();
+  const logoutMutation = useLogoutMutation();
+
+  const onLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+    } finally {
+      navigate(ROUTES.login, { replace: true });
+    }
+  };
+
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-surface">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 lg:px-6">
-        {/* Mobile: hamburger */}
         <button
           type="button"
           onClick={onOpenSidebar}
           className="inline-flex items-center justify-center rounded-lg border border-border bg-surface p-2 text-text-primary lg:hidden"
           aria-label="Open navigation menu"
         >
-          <svg
-            viewBox="0 0 24 24"
-            className="h-5 w-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
@@ -33,17 +41,18 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          {/* Placeholder actions for Phase 0 */}
           <button
             type="button"
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary"
+            onClick={onLogout}
+            disabled={logoutMutation.isPending}
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary disabled:opacity-60"
           >
-            Logout
+            {logoutMutation.isPending ? "Logging out…" : "Logout"}
           </button>
         </div>
       </div>
     </header>
   );
-}
+};
 
 export default TopNav;
