@@ -26,7 +26,7 @@ const AppLayout = () => {
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <main className="min-w-0 flex-1">
-          <div className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
             <Outlet />
           </div>
         </main>

@@ -15,13 +15,10 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Feed", to: ROUTES.feed, anyOf: ["report:feed:read"] },
-
   { label: "New Report", to: ROUTES.reportNew, anyOf: ["report:create"] },
   { label: "My Reports", to: ROUTES.reportMine, anyOf: ["report:read:own"] },
-
   { label: "Verification Queue", to: ROUTES.validatorQueue, anyOf: ["verification:queue:read"] },
   { label: "Staff Queue", to: ROUTES.staffQueue, anyOf: ["report:staff_queue:read"] },
-
   {
     label: "Users",
     to: ROUTES.adminUsers,
@@ -110,8 +107,6 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
           )}
         </nav>
       </aside>
-
-      <div className="hidden w-64 lg:block" />
     </>
   );
 };
