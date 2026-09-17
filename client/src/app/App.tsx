@@ -1,4 +1,4 @@
-import { AppRouter } from "./router/AppRouter";
+import AppRouter  from "./router/AppRouter";
 import QueryProvider from "./providers/QueryProvider";
 import AuthBootstrapper from "./providers/AuthBootstrapper";
 

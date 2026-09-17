@@ -1,13 +1,16 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ROUTES } from "./routes";
 
+import PublicLayout from "../layout/PublicLayout";
 import AppLayout from "../layout/AppLayout";
-import  PublicLayout  from "../layout/PublicLayout";
 
-import  LoginPage  from "../../pages/Login";
-import RegisterPage  from "../../pages/RegisterPage";
+import RequireAuth from "./guards/RequireAuth";
+import RequirePermissions from "./guards/RequirePermissions";
+
+import LoginPage from "../../pages/Login";
+import RegisterPage from "../../pages/RegisterPage";
 import FeedPage from "../../pages/FeedPage";
-import  NewReportPage from "../../pages/NewReportPage";
+import NewReportPage from "../../pages/NewReportPage";
 import MyReportsPage from "../../pages/MyReportsPage";
 import VerificationQueuePage from "../../pages/VerificationQueuePage";
 import StaffQueuePage from "../../pages/StaffQueuePage";
@@ -16,38 +19,68 @@ import AuditLogsPage from "../../pages/AuditLogsPage";
 import UnauthorizedPage from "../../pages/UnauthorizedPage";
 import NotFoundPage from "../../pages/NotFoundPage";
 
-export function AppRouter() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public (no sidebar) */}
-        <Route element={<PublicLayout />}>
-          <Route path={ROUTES.login} element={<LoginPage />} />
-          <Route path={ROUTES.register} element={<RegisterPage />} />
-        </Route>
+const PERMS = {
+  reportCreate: [],
+  reportReadOwn: [],
+  verificationQueue: [],
+  staffQueue: [],
+  adminUsers: [],
+  adminAudit: [],
+} as const;
 
-        {/* App shell (top nav + sidebar) */}
-        <Route element={<AppLayout />}>
-          <Route path={ROUTES.root} element={<Navigate to={ROUTES.feed} replace />} />
+const router = createBrowserRouter([
+  {
+    element: <PublicLayout />,
+    children: [
+      { path: ROUTES.login, element: <LoginPage /> },
+      { path: ROUTES.register, element: <RegisterPage /> },
+    ],
+  },
+  {
+    element: <RequireAuth />,
+    children: [
+      {
+        element: <AppLayout />,
+        children: [
+          { index: true, element: <Navigate to={ROUTES.feed} replace /> },
+          { path: ROUTES.feed, element: <FeedPage /> },
+          {
+            element: <RequirePermissions anyOf={PERMS.reportCreate} />,
+            children: [{ path: ROUTES.reportNew, element: <NewReportPage /> }],
+          },
+          {
+            element: <RequirePermissions anyOf={PERMS.reportReadOwn} />,
+            children: [{ path: ROUTES.reportMine, element: <MyReportsPage /> }],
+          },
+          {
+            element: <RequirePermissions anyOf={PERMS.verificationQueue} />,
+            children: [{ path: ROUTES.validatorQueue, element: <VerificationQueuePage /> }],
+          },
+          {
+            element: <RequirePermissions anyOf={PERMS.staffQueue} />,
+            children: [{ path: ROUTES.staffQueue, element: <StaffQueuePage /> }],
+          },
+          {
+            element: <RequirePermissions anyOf={PERMS.adminUsers} />,
+            children: [{ path: ROUTES.adminUsers, element: <UsersPage /> }],
+          },
+          {
+            element: <RequirePermissions anyOf={PERMS.adminAudit} />,
+            children: [{ path: ROUTES.adminAuditLogs, element: <AuditLogsPage /> }],
+          },
+          { path: ROUTES.unauthorized, element: <UnauthorizedPage /> },
+        ],
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
+  },
+]);
 
-          <Route path={ROUTES.feed} element={<FeedPage />} />
-          <Route path={ROUTES.reportNew} element={<NewReportPage />} />
-          <Route path={ROUTES.reportMine} element={<MyReportsPage />} />
+const AppRouter = () => {
+  return <RouterProvider router={router} />;
+};
 
-          {/* detail placeholder for later */}
-          <Route path={ROUTES.reportDetail} element={<div />} />
-
-          <Route path={ROUTES.validatorQueue} element={<VerificationQueuePage />} />
-          <Route path={ROUTES.staffQueue} element={<StaffQueuePage />} />
-
-          <Route path={ROUTES.adminUsers} element={<UsersPage />} />
-          <Route path={ROUTES.adminAuditLogs} element={<AuditLogsPage />} />
-
-          <Route path={ROUTES.unauthorized} element={<UnauthorizedPage />} />
-        </Route>
-
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+export default AppRouter;
