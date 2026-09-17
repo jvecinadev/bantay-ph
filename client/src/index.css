@@ -1,99 +1,173 @@
-
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ============ LIGHT MODE (default) ============ */
 @theme {
- 
-  --color-primary: #0B3C8C;
-  --color-primary-dark: #082B66;
-  --color-primary-light: #E6EDF9;
+  /* Primary */
+  --color-primary: #4A90E2;
+  --color-primary-dark: #357ABD;
+  --color-primary-light: #F0F7FF;
 
-  --color-accent: #F5B700;
-  --color-accent-light: #FEF3D6;
+  /* Accent */
+  --color-accent: #FBBF24;
+  --color-accent-light: #FEF9E7;
 
-  --color-danger: #C81E2C;
-  --color-danger-light: #FBE4E6;
+  /* Danger */
+  --color-danger: #EF4444;
+  --color-danger-light: #FEF2F2;
 
-  --color-success: #1F9D55;
-  --color-success-light: #E3F5EA;
+  /* Success */
+  --color-success: #10B981;
+  --color-success-light: #ECFDF5;
 
-  --color-background: #F7F8FA;
-  --color-surface: #FFFFFF;
-  --color-border: #E2E5EA;
+  /* Surfaces — 3 tiers for depth */
+  --color-background: #F8FAFC;      /* page */
+  --color-surface: #FFFFFF;          /* cards, nav */
+  --color-surface-sunken: #F1F5F9;   /* inputs, wells, empty states */
 
-  --color-text-primary: #1B1F27;
-  --color-text-secondary: #5C6370;
+  /* Borders — visible against both bg and surface */
+  --color-border: #DDE3EC;           /* default dividers */
+  --color-border-strong: #C7CFDB;    /* inputs, emphasized edges */
 
-  --color-status-reported: #5C6370;
-  --color-status-reported-bg: #E2E5EA;
+  /* Text */
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
 
-  --color-status-under-verification: #0B3C8C;
-  --color-status-under-verification-bg: #E6EDF9;
+  /* Status colors */
+  --color-status-reported: #64748B;
+  --color-status-reported-bg: #F1F5F9;
 
-  --color-status-verified: #F5B700;
-  --color-status-verified-bg: #FEF3D6;
+  --color-status-under-verification: #4A90E2;
+  --color-status-under-verification-bg: #F0F7FF;
 
-  --color-status-assigned: #2F3A8F;
-  --color-status-assigned-bg: #E9ECFF;
+  --color-status-verified: #D97706;
+  --color-status-verified-bg: #FEF3C7;
 
-  --color-status-in-progress: #E8823A;
-  --color-status-in-progress-bg: #FCE9DD;
+  --color-status-assigned: #6366F1;
+  --color-status-assigned-bg: #EEF2FF;
 
-  --color-status-resolved: #1F9D55;
-  --color-status-resolved-bg: #E3F5EA;
+  --color-status-in-progress: #EA580C;
+  --color-status-in-progress-bg: #FFF7ED;
 
-  --color-status-rejected: #C81E2C;
-  --color-status-rejected-bg: #FBE4E6;
+  --color-status-resolved: #10B981;
+  --color-status-resolved-bg: #ECFDF5;
 
-  --color-status-duplicate: #5C6370;
-  --color-status-duplicate-bg: #F7F8FA;
+  --color-status-rejected: #EF4444;
+  --color-status-rejected-bg: #FEF2F2;
+
+  --color-status-duplicate: #94A3B8;
+  --color-status-duplicate-bg: #F8FAFC;
+
+  /* Shadows — subtle but present */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04),
+                 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(15, 23, 42, 0.06),
+                       0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-popover: 0 4px 12px rgba(15, 23, 42, 0.08),
+                    0 12px 32px rgba(15, 23, 42, 0.12);
 }
 
-.dark {
-  @theme {
-    --color-primary: #4D7CFF;
-    --color-primary-dark: #3B62CC;
-    --color-primary-light: #142547;
+/* ============ DARK MODE OVERRIDES ============ */
+/* Plain :root.dark selector so it applies at runtime */
+:root.dark {
+  /* Primary */
+  --color-primary: #4D7CFF;
+  --color-primary-dark: #3B62CC;
+  --color-primary-light: #142547;
 
-    --color-accent: #F5B700;
-    --color-accent-light: #3A2B00;
+  /* Accent */
+  --color-accent: #F5B700;
+  --color-accent-light: #3A2B00;
 
-    --color-danger: #FF5B67;
-    --color-danger-light: #3A1216;
+  /* Danger */
+  --color-danger: #FF5B67;
+  --color-danger-light: #3A1216;
 
-    --color-success: #34D17A;
-    --color-success-light: #0F2A1B;
+  /* Success */
+  --color-success: #34D17A;
+  --color-success-light: #0F2A1B;
 
-    --color-background: #0B1220;
-    --color-surface: #101A2B;
-    --color-border: #223047;
+  /* Surfaces */
+  --color-background: #0B1220;
+  --color-surface: #101A2B;
+  --color-surface-sunken: #0B1220;
 
-    --color-text-primary: #F2F4F8;
-    --color-text-secondary: #B7C0CC;
+  /* Borders — brighter so they're visible in dark too */
+  --color-border: #2A3A54;
+  --color-border-strong: #3A4D6B;
 
-    --color-status-reported: #B7C0CC;
-    --color-status-reported-bg: #1A2434;
+  /* Text */
+  --color-text-primary: #F2F4F8;
+  --color-text-secondary: #B7C0CC;
 
-    --color-status-under-verification: #4D7CFF;
-    --color-status-under-verification-bg: #142547;
+  /* Status colors */
+  --color-status-reported: #B7C0CC;
+  --color-status-reported-bg: #1A2434;
 
-    --color-status-verified: #F5B700;
-    --color-status-verified-bg: #3A2B00;
+  --color-status-under-verification: #4D7CFF;
+  --color-status-under-verification-bg: #142547;
 
-    --color-status-assigned: #AEBBFF;
-    --color-status-assigned-bg: #1A2452;
+  --color-status-verified: #F5B700;
+  --color-status-verified-bg: #3A2B00;
 
-    --color-status-in-progress: #FFA463;
-    --color-status-in-progress-bg: #2D1B10;
+  --color-status-assigned: #AEBBFF;
+  --color-status-assigned-bg: #1A2452;
 
-    --color-status-resolved: #34D17A;
-    --color-status-resolved-bg: #0F2A1B;
+  --color-status-in-progress: #FFA463;
+  --color-status-in-progress-bg: #2D1B10;
 
-    --color-status-rejected: #FF5B67;
-    --color-status-rejected-bg: #3A1216;
+  --color-status-resolved: #34D17A;
+  --color-status-resolved-bg: #0F2A1B;
 
-    --color-status-duplicate: #B7C0CC;
-    --color-status-duplicate-bg: #0B1220;
-  }
+  --color-status-rejected: #FF5B67;
+  --color-status-rejected-bg: #3A1216;
+
+  --color-status-duplicate: #B7C0CC;
+  --color-status-duplicate-bg: #0B1220;
+
+  /* Shadows — deeper in dark */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4),
+                 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.5),
+                       0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-popover: 0 4px 12px rgba(0, 0, 0, 0.5),
+                    0 12px 32px rgba(0, 0, 0, 0.7);
+}
+
+/* ============ BASE ============ */
+html, body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth theme switching without layout thrash */
+html {
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+/* Better default focus ring */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Optional: nicer scrollbar (subtle) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+  border: 2px solid var(--color-background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
 }
