@@ -80,6 +80,7 @@ async function main() {
     RESIDENT: ["report:create", "report:read:own", "report:comment", "history:read:own", "report:feed:read"],
 
     VALIDATOR: [
+      "report:create",
       "report:read",
       "verification:queue:read",
       "report:claim_verification",
@@ -90,6 +91,7 @@ async function main() {
     ],
 
     BARANGAY_STAFF: [
+      "report:create",
       "report:read",
       "report:staff_queue:read",
       "report:assign",
