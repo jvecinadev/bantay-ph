@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "../app/router/routes";
 import { useLoginMutation } from "../features/auth/hooks/useAuthMutations";
@@ -23,7 +23,11 @@ const LoginPage = () => {
     return state?.from ?? ROUTES.root;
   }, [location.state]);
 
-  if (user) navigate(ROUTES.root, { replace: true });
+  useEffect(() => {
+    if (user) {
+      navigate(ROUTES.root, { replace: true });
+    }
+  }, [user, navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
