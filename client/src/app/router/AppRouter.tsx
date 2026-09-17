@@ -1,4 +1,4 @@
-import { Navigate, createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ROUTES } from "./routes";
 
 import PublicLayout from "../layout/PublicLayout";
@@ -6,6 +6,7 @@ import AppLayout from "../layout/AppLayout";
 
 import RequireAuth from "./guards/RequireAuth";
 import RequirePermissions from "./guards/RequirePermissions";
+import RedirectIfAuthed from "./guards/RedirectIfAuthed";
 
 import LoginPage from "../../pages/Login";
 import RegisterPage from "../../pages/RegisterPage";
@@ -18,23 +19,31 @@ import UsersPage from "../../pages/UsersPage";
 import AuditLogsPage from "../../pages/AuditLogsPage";
 import UnauthorizedPage from "../../pages/UnauthorizedPage";
 import NotFoundPage from "../../pages/NotFoundPage";
+import HomeRedirect from "../../pages/HomeRedirect";
+
 
 const PERMS = {
-  reportCreate: ["report:create"] as string[],
-  reportReadOwn: ["report:read:own"] as string[],
-  verificationQueue: ["verification:queue:read", "report:claim_verification", "report:verify", "report:comment"] as string[],
-  staffQueue: ["report:staff_queue:read", "report:assign", "report:update_status", "report:resolve"] as string[],
-  adminUsers: ["user:read", "user:update:role", "user:update_status"] as string[],
-  adminAudit: ["audit:read", "history:read", "history:read:own"] as string[],
+  feedRead: ["report:feed:read"],
+  reportCreate: ["report:create"],
+  reportReadOwn: ["report:read:own"],
+  verificationQueue: ["verification:queue:read"],
+  staffQueue: ["report:staff_queue:read"],
+  adminUsers: ["user:read", "user:update_role", "user:update_status"],
+  adminAudit: ["audit:read"],
 };
 
 const router = createBrowserRouter([
   {
-    element: <PublicLayout />,
+    element: <RedirectIfAuthed/>,
     children: [
-      { path: ROUTES.login, element: <LoginPage /> },
-      { path: ROUTES.register, element: <RegisterPage /> },
-    ],
+      {
+          element: <PublicLayout />,
+          children: [
+            { path: ROUTES.login, element: <LoginPage /> },
+            { path: ROUTES.register, element: <RegisterPage /> },
+        ],
+      }
+    ]
   },
   {
     element: <RequireAuth />,
@@ -42,7 +51,7 @@ const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { index: true, element: <Navigate to={ROUTES.feed} replace /> },
+          { index: true, element: <HomeRedirect />  },  
           { path: ROUTES.feed, element: <FeedPage /> },
           {
             element: <RequirePermissions anyOf={PERMS.reportCreate} />,

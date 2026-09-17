@@ -4,7 +4,11 @@ export type AuthUser = {
   id: string;
   name: string;
   email: string;
-  role: string;
+  status: "ACTIVE" | "INACTIVE";
+  role: {
+    id: number;
+    name: "RESIDENT" | "VALIDATOR" | "BARANGAY_STAFF" | "ADMIN";
+  };
 };
 
 type AuthState = {
