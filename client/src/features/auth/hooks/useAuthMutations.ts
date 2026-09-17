@@ -8,9 +8,9 @@ export const useLoginMutation = () => {
   const qc = useQueryClient();
 
   return useMutation<void, ApiError, LoginBody>({
-    mutationFn: authApi.login,
-    onSuccess: async () => {
-      await qc.refetchQueries({ queryKey: ["auth", "me"] });
+    mutationFn: async (body) => {
+      await authApi.login(body);
+      await qc.refetchQueries({ queryKey: ["auth", "me"] }); 
     },
   });
 };
@@ -19,8 +19,8 @@ export const useRegisterMutation = () => {
   const qc = useQueryClient();
 
   return useMutation<void, ApiError, RegisterBody>({
-    mutationFn: authApi.register,
-    onSuccess: async () => {
+    mutationFn: async (body) => {
+      await authApi.register(body);
       await qc.refetchQueries({ queryKey: ["auth", "me"] });
     },
   });
@@ -29,14 +29,11 @@ export const useRegisterMutation = () => {
 export const useLogoutMutation = () => {
   const qc = useQueryClient();
   const clearAuth = useAuthStore((s) => s.clearAuth);
-  const setBootstrapped = useAuthStore((s) => s.setBootstrapped);
 
   return useMutation<void, ApiError, void>({
-    mutationFn: authApi.logout,
-    onSuccess: async () => {
+    mutationFn: async () => {
+      await authApi.logout();
       clearAuth();
-      setBootstrapped(true);
-
       qc.removeQueries({ queryKey: ["auth", "me"] });
     },
   });

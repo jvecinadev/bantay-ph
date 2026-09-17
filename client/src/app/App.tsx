@@ -6,7 +6,7 @@ const App = () => {
   return (
     <QueryProvider>
       <AuthBootstrapper />
-      <AppRouter />;
+      <AppRouter />
     </QueryProvider>
     )
 }
