@@ -8,8 +8,9 @@ import type { MeResponse } from "../api";
 const useMeQuery = () => {
   const setAuth = useAuthStore((s) => s.setAuth);
   const clearAuth = useAuthStore((s) => s.clearAuth);
-  const setBootstrapped = useAuthStore((s) => s.setBootstrapped);
+
   const bootstrapped = useAuthStore((s) => s.bootstrapped);
+  const setBootstrapped = useAuthStore((s) => s.setBootstrapped);
 
   const query = useQuery<MeResponse, ApiError>({
     queryKey: ["auth", "me"],
@@ -20,26 +21,22 @@ const useMeQuery = () => {
   });
 
   useEffect(() => {
-    if (bootstrapped) return;
-    if (!query.isFetched) return; 
-
     if (query.isSuccess && query.data) {
       setAuth({ user: query.data.user, permissions: query.data.permissions });
-    } else if (query.isError) {
+    }
+  }, [query.isSuccess, query.data, setAuth]);
+
+  useEffect(() => {
+    if (query.isError) {
       clearAuth();
     }
+  }, [query.isError, clearAuth]);
 
-    setBootstrapped(true);
-  }, [
-    bootstrapped,
-    query.isFetched,
-    query.isSuccess,
-    query.isError,
-    query.data,
-    setAuth,
-    clearAuth,
-    setBootstrapped,
-  ]);
+  useEffect(() => {
+    if (!bootstrapped && query.isFetched) {
+      setBootstrapped(true);
+    }
+  }, [bootstrapped, query.isFetched, setBootstrapped]);
 
   return query;
 };

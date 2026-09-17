@@ -11,21 +11,28 @@ const AppLayout = () => {
     setSidebarOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    document.body.style.overflow = sidebarOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarOpen]);
+
   return (
     <div className="min-h-dvh bg-background text-text-primary">
       <TopNav onOpenSidebar={() => setSidebarOpen(true)} />
 
-      <div className="mx-auto flex w-full max-w-7xl gap-0 px-0 lg:px-4">
+      <div className="flex w-full">
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        <main className="w-full px-4 py-4 lg:px-6 lg:py-6">
-          <div className="rounded-xl border border-border bg-surface p-4 lg:p-6">
+        <main className="min-w-0 flex-1">
+          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
             <Outlet />
           </div>
         </main>
       </div>
     </div>
   );
-}
+};
 
 export default AppLayout;
