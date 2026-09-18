@@ -131,6 +131,7 @@ const MyReportsPage = () => {
             data.reports.map((r) => (
               <ReportCard
                 key={r.id}
+                to={`/reports/${r.id}`}
                 title={r.title}
                 category={getCategoryLabel(r.category)}
                 status={r.status}
