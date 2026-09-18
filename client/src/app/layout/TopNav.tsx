@@ -33,21 +33,15 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(THEME_KEY);
-      const prefersDark =
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
+  try {
+    const stored = localStorage.getItem(THEME_KEY);
+    const shouldBeDark = stored === "dark";
 
-      const shouldBeDark = stored ? stored === "dark" : prefersDark;
-
-      document.documentElement.classList.toggle("dark", shouldBeDark);
-      setIsDark(shouldBeDark);
-    } catch {
-      // ignore
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    document.documentElement.classList.toggle("dark", shouldBeDark);
+    setIsDark(shouldBeDark);
+  } catch {
+  }
+}, []);
 
   // Close on outside click
   useEffect(() => {
