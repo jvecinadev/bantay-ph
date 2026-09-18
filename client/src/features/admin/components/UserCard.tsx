@@ -52,7 +52,7 @@ const UserCard = ({ user }: Props) => {
           {/* Avatar with initials */}
           <div
             className={[
-              "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold",
+              "flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold",
               isActive
                 ? "bg-primary-light text-primary"
                 : "bg-surface-sunken text-text-secondary",
@@ -111,7 +111,7 @@ const UserCard = ({ user }: Props) => {
       {hasError ? (
         <div className="px-5 pb-4 sm:px-6">
           <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
-            <span className="mt-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
+            <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
               !
             </span>
             <span className="leading-relaxed">
