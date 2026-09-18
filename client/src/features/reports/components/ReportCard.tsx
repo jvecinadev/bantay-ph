@@ -1,46 +1,58 @@
+import { Link } from "react-router-dom";
+import type { ReportStatus } from "../types";
 import StatusBadge from "./StatusBadge";
 
 type Props = {
+  to?: string;
   title: string;
   category: string;
-  status: any;
+  status: ReportStatus;
   meta?: string;
   description?: string;
 };
 
-const ReportCard = ({ title, category, status, meta, description }: Props) => {
-  return (
-    <article className="group relative overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover">
-      {/* Top accent bar */}
-      <div className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-primary/60 via-primary/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-      
-      <div className="p-5">
-        {/* Header row */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            {/* Category pill */}
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-sunken px-2.5 py-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
-                {category}
-              </span>
-            </div>
+const ReportCard = ({ to, title, category, status, meta, description }: Props) => {
+  const isInteractive = !!to;
 
-            {/* Title */}
-            <h3 className="mt-3 text-lg font-semibold leading-snug tracking-tight text-text-primary transition-colors group-hover:text-primary">
-              {title}
-            </h3>
+  const cardClasses = [
+    "group relative block overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-all duration-200",
+    isInteractive
+      ? "hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const Inner = (
+    <div className={cardClasses}>
+      <div className="p-5 sm:p-6">
+        {/* Top row: category pill (left) + status badge (right) */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-2.5 py-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
+              {category}
+            </span>
           </div>
 
-          {/* Status */}
-          <div className="shrink-0">
-            <StatusBadge status={status} />
-          </div>
+          <StatusBadge status={status} />
         </div>
 
-        {/* Meta */}
+        {/* Title — the headline of the card */}
+        <h3
+          className={[
+            "mt-4 text-lg font-semibold leading-snug tracking-tight text-text-primary",
+            isInteractive ? "transition-colors group-hover:text-primary" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          {title}
+        </h3>
+
+        {/* Reporter meta */}
         {meta ? (
-          <div className="mt-3 flex items-center gap-1.5 text-xs text-text-secondary">
+          <div className="mt-2.5 flex items-center gap-1.5 text-xs text-text-secondary">
             <svg
               width="14"
               height="14"
@@ -50,7 +62,7 @@ const ReportCard = ({ title, category, status, meta, description }: Props) => {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="shrink-0 opacity-60"
+              className="shrink-0 opacity-70"
             >
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
@@ -59,16 +71,33 @@ const ReportCard = ({ title, category, status, meta, description }: Props) => {
           </div>
         ) : null}
 
-        {/* Description with left accent */}
+        {/* Description — separated by a hairline divider */}
         {description ? (
-          <div className="mt-4 border-l-2 border-border pl-4">
-            <p className="line-clamp-3 text-sm leading-relaxed text-text-secondary">
+          <>
+            <div className="mt-4 h-px w-full bg-border" />
+            <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-text-secondary">
               {description}
             </p>
-          </div>
+          </>
         ) : null}
       </div>
-    </article>
+
+      {/* Subtle accent bar on hover (only for interactive cards) */}
+      {isInteractive ? (
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100" />
+      ) : null}
+    </div>
+  );
+
+  if (!to) return Inner;
+
+  return (
+    <Link
+      to={to}
+      className="block rounded-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+    >
+      {Inner}
+    </Link>
   );
 };
 
