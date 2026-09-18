@@ -77,7 +77,7 @@ async function main() {
   const allPermissionNames = permissionsToSeed.map((p) => p.name);
 
   const rolePermissionMap: Record<string, string[]> = {
-    RESIDENT: ["report:create", "report:read:own", "report:comment", "history:read:own", "report:feed:read"],
+    RESIDENT: ["report:create", "report:read:own", "report:comment", "history:read:own", "report:feed:read", "report:read"],
 
     VALIDATOR: [
       "report:create",
