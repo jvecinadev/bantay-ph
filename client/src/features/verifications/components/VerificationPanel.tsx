@@ -10,17 +10,14 @@ type Props = {
   status: ReportStatus;
 };
 
-const VerificationPanel = ({ reportId, status }: Props) => {
+const VerificationPanelInner = ({ reportId, status }: Props) => {
   const permissions = useAuthStore((s) => s.permissions);
 
-  const canClaim = permissions.includes("report:claim_verification");
-  const canVerify = permissions.includes("report:verify");
+  const canClaimPerm = permissions.includes("report:claim_verification");
+  const canVerifyPerm = permissions.includes("report:verify");
 
-  const isValidatorStage = status === "REPORTED" || status === "UNDER_VERIFICATION";
-  if (!isValidatorStage) return null;
-
-  const canClaimNow = canClaim && status === "REPORTED";
-  const canVerifyNow = canVerify && status === "UNDER_VERIFICATION";
+  const canClaimNow = canClaimPerm && status === "REPORTED";
+  const canVerifyNow = canVerifyPerm && status === "UNDER_VERIFICATION";
 
   if (!canClaimNow && !canVerifyNow) return null;
 
@@ -40,7 +37,7 @@ const VerificationPanel = ({ reportId, status }: Props) => {
     <div className="rounded-xl border border-border bg-surface p-4">
       <div className="text-sm font-semibold text-text-primary">Validator Actions</div>
       <div className="mt-1 text-xs text-text-secondary">
-        Only available while the report is <span className="text-text-primary">REPORTED</span> or{" "}
+        Available only while the report is <span className="text-text-primary">REPORTED</span> or{" "}
         <span className="text-text-primary">UNDER_VERIFICATION</span>.
       </div>
 
@@ -56,7 +53,7 @@ const VerificationPanel = ({ reportId, status }: Props) => {
         </div>
       ) : null}
 
-      {/* Claim (only when REPORTED) */}
+      {/* Claim */}
       {canClaimNow ? (
         <div className="mt-4">
           <button
@@ -70,6 +67,7 @@ const VerificationPanel = ({ reportId, status }: Props) => {
         </div>
       ) : null}
 
+      {/* Verify */}
       {canVerifyNow ? (
         <div className="mt-4 rounded-lg border border-border bg-background p-3">
           <div className="text-sm font-medium text-text-primary">Submit verification</div>
@@ -123,6 +121,13 @@ const VerificationPanel = ({ reportId, status }: Props) => {
       ) : null}
     </div>
   );
+};
+
+const VerificationPanel = ({ reportId, status }: Props) => {
+  const isValidatorStage = status === "REPORTED" || status === "UNDER_VERIFICATION";
+  if (!isValidatorStage) return null;
+
+  return <VerificationPanelInner reportId={reportId} status={status} />;
 };
 
 export default VerificationPanel;
