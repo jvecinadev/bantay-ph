@@ -12,6 +12,7 @@ import StatusBadge from "../features/reports/components/StatusBadge";
 import CommentList from "../features/reports/components/CommentList";
 import CommentForm from "../features/reports/components/CommentForm";
 import HistoryTimeline from "../features/reports/components/HistoryTimeline";
+import VerificationPanel from "../features/verifications/components/VerificationPanel";
 
 const ReportDetailPage = () => {
   const { id = "" } = useParams();
@@ -230,7 +231,7 @@ const ReportDetailPage = () => {
           </div>
         </div>
       </div>
-
+      <VerificationPanel reportId={report.id} status={report.status} />
       {/* ============ COMMENTS ============ */}
       <section className="space-y-4">
         <div className="flex items-end justify-between gap-3">
