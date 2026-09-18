@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "../app/router/routes";
 import { useLoginMutation } from "../features/auth/hooks/useAuthMutations";
 import useAuthStore from "../stores/authStore";
+import Logo from '../assets/logo.png'
 
 type LocationState = {
   from?: string;
@@ -41,14 +42,8 @@ const LoginPage = () => {
           <div className="pointer-events-none absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
 
           {/* Logo */}
-          <div className="relative flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface">
-              <div className="h-4 w-4 rounded-full bg-accent" />
-            </div>
-            <div className="text-surface">
-              <div className="text-sm font-bold tracking-tight">Bantay PH</div>
-              <div className="text-xs text-surface/70">Community Issue Reporting</div>
-            </div>
+          <div className="flex items-center gap-3">
+            <img src={Logo} alt="Bantay PH" className="h-9 w-9 object-contain" />
           </div>
 
           {/* Hero text */}
