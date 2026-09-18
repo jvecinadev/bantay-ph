@@ -1,9 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import useClaimVerificationMutation from "../hooks/useClaimVerificationMutation";
-import VerificationQueueItemCard from "./VerificationQueueItemCard";
 import type { VerificationQueueItem } from "../types";
+import VerificationQueueItemCard from "./VerificationQueueItemCard";
 
-type Props = { item: VerificationQueueItem; canClaim: boolean };
+type Props = {
+  item: VerificationQueueItem;
+  canClaim: boolean;
+};
 
 const VerificationQueueItemRow = ({ item, canClaim }: Props) => {
   const navigate = useNavigate();
@@ -11,7 +14,7 @@ const VerificationQueueItemRow = ({ item, canClaim }: Props) => {
 
   const onClaim = async () => {
     await claimMutation.mutateAsync();
-    navigate(`/reports/${item.id}`); // now they can immediately CONFIRM/REJECT/DUPLICATE
+    navigate(`/reports/${item.id}`); 
   };
 
   return (
