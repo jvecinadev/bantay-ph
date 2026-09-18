@@ -59,7 +59,7 @@ const FeedPage = () => {
 
         {error ? (
           <div className="mt-6 flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
-            <span className="mt-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
+            <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
               !
             </span>
             <span className="leading-relaxed">{error.message}</span>
@@ -80,7 +80,7 @@ const FeedPage = () => {
                       <div className="mt-3 h-4 w-3/4 rounded bg-surface-sunken" />
                       <div className="mt-2 h-3 w-1/3 rounded bg-surface-sunken" />
                     </div>
-                    <div className="h-6 w-20 flex-shrink-0 rounded-full bg-surface-sunken" />
+                    <div className="h-6 w-20 shrink-0 rounded-full bg-surface-sunken" />
                   </div>
                   <div className="mt-4 h-3 w-full rounded bg-surface-sunken" />
                   <div className="mt-2 h-3 w-5/6 rounded bg-surface-sunken" />
@@ -206,7 +206,7 @@ const FeedPage = () => {
                 { n: "3", t: "Resolve", d: "Staff act and update status." },
               ].map((s) => (
                 <li key={s.n} className="flex gap-3">
-                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-primary-light text-xs font-bold text-primary">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-light text-xs font-bold text-primary">
                     {s.n}
                   </span>
                   <div className="min-w-0">
