@@ -1,3 +1,4 @@
+
 import { useMemo, useState } from "react";
 import useAuthStore from "../../../stores/authStore";
 import type { ReportStatus } from "../../reports/types";
@@ -15,9 +16,13 @@ const VerificationPanel = ({ reportId, status }: Props) => {
   const canClaim = permissions.includes("report:claim_verification");
   const canVerify = permissions.includes("report:verify");
 
-  const showPanel = canClaim || canVerify;
+  const isValidatorStage = status === "REPORTED" || status === "UNDER_VERIFICATION";
+  if (!isValidatorStage) return null;
+
   const canClaimNow = canClaim && status === "REPORTED";
   const canVerifyNow = canVerify && status === "UNDER_VERIFICATION";
+
+  if (!canClaimNow && !canVerifyNow) return null;
 
   const claimMutation = useClaimVerificationMutation(reportId);
   const verifyMutation = useSubmitVerificationMutation(reportId);
@@ -31,13 +36,12 @@ const VerificationPanel = ({ reportId, status }: Props) => {
     return false;
   }, [canVerifyNow, verifyMutation.isPending]);
 
-  if (!showPanel) return null;
-
   return (
     <div className="rounded-xl border border-border bg-surface p-4">
       <div className="text-sm font-semibold text-text-primary">Validator Actions</div>
       <div className="mt-1 text-xs text-text-secondary">
-        Claim a report to move it to <span className="text-text-primary">UNDER_VERIFICATION</span>, then submit a result.
+        Only available while the report is <span className="text-text-primary">REPORTED</span> or{" "}
+        <span className="text-text-primary">UNDER_VERIFICATION</span>.
       </div>
 
       {claimMutation.error ? (
@@ -52,21 +56,23 @@ const VerificationPanel = ({ reportId, status }: Props) => {
         </div>
       ) : null}
 
-      <div className="mt-4 flex flex-col gap-3">
-        <button
-          type="button"
-          disabled={!canClaimNow || claimMutation.isPending}
-          onClick={() => claimMutation.mutate()}
-          className="w-full rounded-lg bg-primary px-3 py-2 text-sm font-medium text-surface hover:bg-primary-dark disabled:opacity-60"
-        >
-          {claimMutation.isPending ? "Claiming…" : "Claim for verification"}
-        </button>
+      {/* Claim (only when REPORTED) */}
+      {canClaimNow ? (
+        <div className="mt-4">
+          <button
+            type="button"
+            disabled={claimMutation.isPending}
+            onClick={() => claimMutation.mutate()}
+            className="w-full rounded-lg bg-primary px-3 py-2 text-sm font-medium text-surface hover:bg-primary-dark disabled:opacity-60"
+          >
+            {claimMutation.isPending ? "Claiming…" : "Claim for verification"}
+          </button>
+        </div>
+      ) : null}
 
-        <div className="rounded-lg border border-border bg-background p-3">
+      {canVerifyNow ? (
+        <div className="mt-4 rounded-lg border border-border bg-background p-3">
           <div className="text-sm font-medium text-text-primary">Submit verification</div>
-          <div className="mt-1 text-xs text-text-secondary">
-            Available only when status is <span className="text-text-primary">UNDER_VERIFICATION</span>.
-          </div>
 
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
             {(["CONFIRMED", "REJECTED", "DUPLICATE"] as const).map((v) => (
@@ -80,7 +86,7 @@ const VerificationPanel = ({ reportId, status }: Props) => {
                   value={v}
                   checked={result === v}
                   onChange={() => setResult(v)}
-                  disabled={!canVerifyNow || verifyMutation.isPending}
+                  disabled={verifyMutation.isPending}
                 />
                 {v}
               </label>
@@ -93,7 +99,7 @@ const VerificationPanel = ({ reportId, status }: Props) => {
               className="mt-1 min-h-20 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary disabled:opacity-60"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              disabled={!canVerifyNow || verifyMutation.isPending}
+              disabled={verifyMutation.isPending}
               placeholder="Add a brief reason or note…"
             />
           </div>
@@ -114,7 +120,7 @@ const VerificationPanel = ({ reportId, status }: Props) => {
             </button>
           </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 };
