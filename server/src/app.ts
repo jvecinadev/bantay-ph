@@ -5,6 +5,7 @@ import helmet from 'helmet'
 import { errorHandler } from './middleware/errorHandler.middleware'
 import routes from './routes'
 import { rateLimiter } from './middleware/rateLimiter.middleware'
+import { env } from './config/env'
 
 const app = express()
 
@@ -12,7 +13,7 @@ app.set('trust proxy', 1)
 
 app.use(helmet())
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', env.clientUrl],
   credentials: true
 }))
 

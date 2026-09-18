@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../app/router/routes";
 import { useRegisterMutation } from "../features/auth/hooks/useAuthMutations";
+import Logo from '../assets/logo.png'
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -36,16 +37,8 @@ const RegisterPage = () => {
         <div className="pointer-events-none absolute right-24 top-1/2 h-1.5 w-1.5 rounded-full bg-accent/40" />
 
         {/* Logo */}
-        <div className="relative flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface shadow-popover">
-            <div className="relative h-4 w-4 rounded-full bg-accent">
-              <span className="absolute inset-0 -m-1 rounded-full border border-accent/40" />
-            </div>
-          </div>
-          <div className="leading-tight text-surface">
-            <div className="text-sm font-bold tracking-tight">Bantay PH</div>
-            <div className="text-xs text-surface/70">Community Issue Reporting</div>
-          </div>
+        <div className="flex items-center gap-3">
+            <img src={Logo} alt="Bantay PH" className="h-9 w-9 object-contain" />
         </div>
 
         {/* Hero copy */}
