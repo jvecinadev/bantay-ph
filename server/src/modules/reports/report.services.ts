@@ -143,10 +143,6 @@ export const getReportByIdService = async (reportId: string, requester: Requeste
     throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
   }
 
-  if (!canReadReport(requester, report)) {
-    throw new HttpError(403, "Forbidden", { code: "REPORT_FORBIDDEN" });
-  }
-
   return report;
 };
 
