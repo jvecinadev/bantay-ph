@@ -1,5 +1,7 @@
 import { http } from "../../lib/api/http";
-import type { Paginated, ReportCategory, ReportFeedItem, ReportMineItem, ReportStatus } from "./types";
+import type { Paginated, ReportCategory, ReportFeedItem, ReportMineItem, ReportStatus,
+      ReportDetail, ReportComment, ReportHistoryItem
+} from "./types";
 
 type ApiEnvelope<T> = {
   message: string;
@@ -59,5 +61,24 @@ export const reportsApi = {
     >("/reports", body);
 
     return res.data.data;
+  },
+
+  getById: async (id: string) => {
+    const res = await http.get<ApiEnvelope<{ report: ReportDetail }>>(`/reports/${id}`);
+    return res.data.data.report;
+  },
+
+  getComments: async (id: string) => {
+    const res = await http.get<ApiEnvelope<{ comments: ReportComment[] }>>(`/reports/${id}/comments`);
+    return res.data.data.comments;
+  },
+
+  addComment: async (id: string, body: { comment: string }) => {
+    await http.post<ApiEnvelope<unknown>>(`/reports/${id}/comments`, body);
+  },
+
+  getHistory: async (id: string) => {
+    const res = await http.get<ApiEnvelope<{ history: ReportHistoryItem[] }>>(`/reports/${id}/history`);
+    return res.data.data.history;
   },
 };

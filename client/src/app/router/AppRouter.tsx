@@ -17,6 +17,7 @@ import VerificationQueuePage from "../../pages/VerificationQueuePage";
 import StaffQueuePage from "../../pages/StaffQueuePage";
 import UsersPage from "../../pages/UsersPage";
 import AuditLogsPage from "../../pages/AuditLogsPage";
+import ReportDetailPage from "../../pages/ReportDetailsPage";
 import UnauthorizedPage from "../../pages/UnauthorizedPage";
 import NotFoundPage from "../../pages/NotFoundPage";
 import HomeRedirect from "../../pages/HomeRedirect";
@@ -30,6 +31,7 @@ const PERMS = {
   staffQueue: ["report:staff_queue:read"],
   adminUsers: ["user:read", "user:update_role", "user:update_status"],
   adminAudit: ["audit:read"],
+  reportDetailRead: ["report:read", "report:read:own", "report:feed:read"],
 };
 
 const router = createBrowserRouter([
@@ -72,6 +74,10 @@ const router = createBrowserRouter([
           {
             element: <RequirePermissions anyOf={PERMS.adminUsers} />,
             children: [{ path: ROUTES.adminUsers, element: <UsersPage /> }],
+          },
+          {
+            element: <RequirePermissions anyOf={PERMS.reportDetailRead} />,
+            children: [{ path: ROUTES.reportDetail, element: <ReportDetailPage /> }],
           },
           {
             element: <RequirePermissions anyOf={PERMS.adminAudit} />,
