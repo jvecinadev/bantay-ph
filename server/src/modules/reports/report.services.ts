@@ -142,7 +142,7 @@ export const getReportByIdService = async (reportId: string, requester: Requeste
   if (!report) {
     throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
   }
-  
+
   return report;
 };
 
