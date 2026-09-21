@@ -8,6 +8,9 @@ import { createReportSchema, getMyReportSchema, getReportByIdSchema, staffAssign
 import { assignToSelf, createReport, getMyReports, getReportById, getStaffQueue, updateAssignedStatus } from "./report.controller";
 import { addCommentSchema, feedQuerySchema, reportIdParamsSchema } from "./reportSocial.validation";
 import { addReportComment, getFeedReports, getReportComments, getReportHistory } from "./reportSocial.controller";
+import { uploadReportPhotos } from "./reportPhotos.controller";
+import { uploadReportPhotosSchema } from "./reportPhotos.validation";
+import { uploadReportPhotos as uploadReportPhotosMw } from "../../middleware/uploadReportPhotos.middleware";
 
 const router = Router()
 
@@ -17,6 +20,7 @@ router.post("/", requirePermission("report:create"), validate(createReportSchema
 router.get("/mine", requirePermission("report:read:own"), validate(getMyReportSchema), getMyReports)
 router.get("/feed", requirePermission("report:feed:read"), validate(feedQuerySchema), getFeedReports)
 router.get("/:id", validate(getReportByIdSchema), getReportById)
+router.post("/:id/photos", requirePermission("report:create"), validate(uploadReportPhotosSchema), uploadReportPhotosMw, uploadReportPhotos)
 
 // Staff
 router.get("/staff/queue", requirePermission("report:staff_queue:read"), validate(staffQueueSchema), getStaffQueue)
