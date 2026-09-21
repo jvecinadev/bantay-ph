@@ -36,6 +36,14 @@ export const getFeedReportsService = async (args: {
         createdAt: true,
         updatedAt: true,
         reporter: { select: { id: true, name: true } },
+        photos: { 
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            url: true,
+            createdAt: true,
+          },
+         }
 
       },
     }),

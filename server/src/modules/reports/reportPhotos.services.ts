@@ -62,7 +62,7 @@ export const uploadReportPhotosService = async (args: {
       });
     }
 
-    const folder = `bantay-ph/reports/${reportId}`;
+    const folder = `bantayph/reports/${reportId}`;
     const uploads = await Promise.all(
       files.map((f) => uploadBufferToCloudinary({ buffer: f.buffer, folder }))
     );

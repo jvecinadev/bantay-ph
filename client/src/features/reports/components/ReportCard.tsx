@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import type { ReportStatus } from "../types";
 import StatusBadge from "./StatusBadge";
 
+type PhotoLike = { url: string };
+
 type Props = {
   to?: string;
   title: string;
@@ -9,15 +11,34 @@ type Props = {
   status: ReportStatus;
   meta?: string;
   description?: string;
+
+  photos?: PhotoLike[];
+
+  photoUrl?: string;
+  photoCount?: number;
 };
 
-const ReportCard = ({ to, title, category, status, meta, description }: Props) => {
+const ReportCard = ({
+  to,
+  title,
+  category,
+  status,
+  meta,
+  description,
+  photos,
+  photoUrl,
+  photoCount,
+}: Props) => {
   const isInteractive = !!to;
 
+  const derivedPhotoUrl = photoUrl ?? photos?.[0]?.url;
+  const derivedPhotoCount = photoCount ?? (photos ? photos.length : undefined);
+
   const cardClasses = [
-    "group relative block overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-all duration-200",
+    "group relative block overflow-hidden rounded-2xl border border-border bg-surface transition-all duration-200",
+    "shadow-sm",
     isInteractive
-      ? "hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+      ? "hover:-translate-y-0.5 hover:border-primary hover:shadow-md focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
       : "",
   ]
     .filter(Boolean)
@@ -25,10 +46,30 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
 
   const Inner = (
     <div className={cardClasses}>
+      {/* Photo header (optional) */}
+      {derivedPhotoUrl ? (
+        <div className="relative h-40 w-full bg-background">
+          <img
+            src={derivedPhotoUrl}
+            alt="Report photo"
+            className="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-text-primary/10" />
+
+          {typeof derivedPhotoCount === "number" && derivedPhotoCount > 1 ? (
+            <div className="absolute right-3 top-3 rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-medium text-text-primary">
+              {derivedPhotoCount} photos
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="p-5 sm:p-6">
-        {/* Top row: category pill (left) + status badge (right) */}
+        {/* Top row */}
         <div className="flex items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-2.5 py-1">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-background px-2.5 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             <span className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
               {category}
@@ -38,7 +79,7 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
           <StatusBadge status={status} />
         </div>
 
-        {/* Title — the headline of the card */}
+        {/* Title */}
         <h3
           className={[
             "mt-4 text-lg font-semibold leading-snug tracking-tight text-text-primary",
@@ -50,7 +91,7 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
           {title}
         </h3>
 
-        {/* Reporter meta */}
+        {/* Meta */}
         {meta ? (
           <div className="mt-2.5 flex items-center gap-1.5 text-xs text-text-secondary">
             <svg
@@ -71,7 +112,7 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
           </div>
         ) : null}
 
-        {/* Description — separated by a hairline divider */}
+        {/* Description */}
         {description ? (
           <>
             <div className="mt-4 h-px w-full bg-border" />
@@ -82,7 +123,7 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
         ) : null}
       </div>
 
-      {/* Subtle accent bar on hover (only for interactive cards) */}
+      {/* Accent bar on hover */}
       {isInteractive ? (
         <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100" />
       ) : null}
@@ -92,10 +133,7 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
   if (!to) return Inner;
 
   return (
-    <Link
-      to={to}
-      className="block rounded-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
-    >
+    <Link to={to} className="block rounded-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20">
       {Inner}
     </Link>
   );

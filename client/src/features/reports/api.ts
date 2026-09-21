@@ -1,6 +1,6 @@
 import { http } from "../../lib/api/http";
 import type { Paginated, ReportCategory, ReportFeedItem, ReportMineItem, ReportStatus,
-      ReportDetail, ReportComment, ReportHistoryItem
+      ReportDetail, ReportComment, ReportHistoryItem, ReportPhoto
 } from "./types";
 
 type ApiEnvelope<T> = {
@@ -61,6 +61,17 @@ export const reportsApi = {
     >("/reports", body);
 
     return res.data.data;
+  },
+
+  uploadPhotos: async (reportId: string, photos: File[]) => {
+    const fd = new FormData();
+    photos.forEach((file) => fd.append("photos", file)); // field name MUST be "photos"
+
+    const res = await http.post<
+      ApiEnvelope<{ photos: ReportPhoto[] }>
+    >(`/reports/${reportId}/photos`, fd);
+
+    return res.data.data.photos;
   },
 
   getById: async (id: string) => {

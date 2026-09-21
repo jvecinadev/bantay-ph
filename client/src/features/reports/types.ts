@@ -32,6 +32,7 @@ export type ReportFeedItem = {
     id: string;
     name: string;
   };
+  photos?: ReportPhoto[];
 };
 
 export type ReportMineItem = {
@@ -81,6 +82,7 @@ export type ReportDetail = {
     name: string;
     email: string;
   };
+  photos?: ReportPhoto[];
 };
 
 export type ReportComment = {
@@ -109,4 +111,12 @@ export type ReportHistoryItem = {
       name: "RESIDENT" | "VALIDATOR" | "BARANGAY_STAFF" | "ADMIN";
     };
   };
+};
+
+export type ReportPhoto = {
+  id: string;
+  url: string;
+  provider: "CLOUDINARY";
+  providerFileId: string;
+  createdAt: string;
 };
