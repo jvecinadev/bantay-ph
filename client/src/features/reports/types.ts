@@ -32,6 +32,7 @@ export type ReportFeedItem = {
     id: string;
     name: string;
   };
+  photos?: ReportPhoto[];
 };
 
 export type ReportMineItem = {

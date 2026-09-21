@@ -90,13 +90,13 @@ const FeedPage = () => {
           ) : data?.reports?.length ? (
             data.reports.map((r) => (
               <ReportCard
-                key={r.id}
                 to={`/reports/${r.id}`}
                 title={r.title}
                 category={getCategoryLabel(r.category)}
                 status={r.status}
                 meta={`Reported by ${r.reporter?.name ?? "Unknown"}`}
                 description={r.description}
+                photos={r.photos}
               />
             ))
           ) : (

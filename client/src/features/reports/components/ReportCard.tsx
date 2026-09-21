@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import type { ReportStatus } from "../types";
 import StatusBadge from "./StatusBadge";
 
+type PhotoLike = { url: string };
+
 type Props = {
   to?: string;
   title: string;
@@ -9,6 +11,8 @@ type Props = {
   status: ReportStatus;
   meta?: string;
   description?: string;
+
+  photos?: PhotoLike[];
 
   photoUrl?: string;
   photoCount?: number;
@@ -21,15 +25,20 @@ const ReportCard = ({
   status,
   meta,
   description,
+  photos,
   photoUrl,
   photoCount,
 }: Props) => {
   const isInteractive = !!to;
 
+  const derivedPhotoUrl = photoUrl ?? photos?.[0]?.url;
+  const derivedPhotoCount = photoCount ?? (photos ? photos.length : undefined);
+
   const cardClasses = [
-    "group relative block overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-all duration-200",
+    "group relative block overflow-hidden rounded-2xl border border-border bg-surface transition-all duration-200",
+    "shadow-sm",
     isInteractive
-      ? "hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+      ? "hover:-translate-y-0.5 hover:border-primary hover:shadow-md focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
       : "",
   ]
     .filter(Boolean)
@@ -38,31 +47,29 @@ const ReportCard = ({
   const Inner = (
     <div className={cardClasses}>
       {/* Photo header (optional) */}
-      {photoUrl ? (
+      {derivedPhotoUrl ? (
         <div className="relative h-40 w-full bg-background">
           <img
-            src={photoUrl}
+            src={derivedPhotoUrl}
             alt="Report photo"
             className="h-full w-full object-cover"
             loading="lazy"
             decoding="async"
           />
-
-          {/* subtle overlay so text below feels connected */}
           <div className="pointer-events-none absolute inset-0 bg-text-primary/10" />
 
-          {typeof photoCount === "number" && photoCount > 1 ? (
+          {typeof derivedPhotoCount === "number" && derivedPhotoCount > 1 ? (
             <div className="absolute right-3 top-3 rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-medium text-text-primary">
-              {photoCount} photos
+              {derivedPhotoCount} photos
             </div>
           ) : null}
         </div>
       ) : null}
 
       <div className="p-5 sm:p-6">
-        {/* Top row: category pill (left) + status badge (right) */}
+        {/* Top row */}
         <div className="flex items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-2.5 py-1">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-background px-2.5 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             <span className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
               {category}
@@ -126,10 +133,7 @@ const ReportCard = ({
   if (!to) return Inner;
 
   return (
-    <Link
-      to={to}
-      className="block rounded-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
-    >
+    <Link to={to} className="block rounded-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20">
       {Inner}
     </Link>
   );
