@@ -110,3 +110,11 @@ export type ReportHistoryItem = {
     };
   };
 };
+
+export type ReportPhoto = {
+  id: string;
+  url: string;
+  provider: "CLOUDINARY";
+  providerFileId: string;
+  createdAt: string;
+};
