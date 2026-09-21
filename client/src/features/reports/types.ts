@@ -81,6 +81,7 @@ export type ReportDetail = {
     name: string;
     email: string;
   };
+  photos?: ReportPhoto[];
 };
 
 export type ReportComment = {

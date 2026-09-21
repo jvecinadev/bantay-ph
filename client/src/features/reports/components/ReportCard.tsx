@@ -9,9 +9,21 @@ type Props = {
   status: ReportStatus;
   meta?: string;
   description?: string;
+
+  photoUrl?: string;
+  photoCount?: number;
 };
 
-const ReportCard = ({ to, title, category, status, meta, description }: Props) => {
+const ReportCard = ({
+  to,
+  title,
+  category,
+  status,
+  meta,
+  description,
+  photoUrl,
+  photoCount,
+}: Props) => {
   const isInteractive = !!to;
 
   const cardClasses = [
@@ -25,6 +37,28 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
 
   const Inner = (
     <div className={cardClasses}>
+      {/* Photo header (optional) */}
+      {photoUrl ? (
+        <div className="relative h-40 w-full bg-background">
+          <img
+            src={photoUrl}
+            alt="Report photo"
+            className="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+
+          {/* subtle overlay so text below feels connected */}
+          <div className="pointer-events-none absolute inset-0 bg-text-primary/10" />
+
+          {typeof photoCount === "number" && photoCount > 1 ? (
+            <div className="absolute right-3 top-3 rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-medium text-text-primary">
+              {photoCount} photos
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="p-5 sm:p-6">
         {/* Top row: category pill (left) + status badge (right) */}
         <div className="flex items-center justify-between gap-4">
@@ -38,7 +72,7 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
           <StatusBadge status={status} />
         </div>
 
-        {/* Title — the headline of the card */}
+        {/* Title */}
         <h3
           className={[
             "mt-4 text-lg font-semibold leading-snug tracking-tight text-text-primary",
@@ -50,7 +84,7 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
           {title}
         </h3>
 
-        {/* Reporter meta */}
+        {/* Meta */}
         {meta ? (
           <div className="mt-2.5 flex items-center gap-1.5 text-xs text-text-secondary">
             <svg
@@ -71,7 +105,7 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
           </div>
         ) : null}
 
-        {/* Description — separated by a hairline divider */}
+        {/* Description */}
         {description ? (
           <>
             <div className="mt-4 h-px w-full bg-border" />
@@ -82,7 +116,7 @@ const ReportCard = ({ to, title, category, status, meta, description }: Props) =
         ) : null}
       </div>
 
-      {/* Subtle accent bar on hover (only for interactive cards) */}
+      {/* Accent bar on hover */}
       {isInteractive ? (
         <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100" />
       ) : null}
