@@ -1,9 +1,9 @@
 import { useState } from "react";
 import useFeedReportsQuery from "../features/reports/hooks/useFeedReportsQuery";
-import { CATEGORY_OPTIONS, getCategoryLabel } from "../features/reports/constants";
+import { CATEGORY_OPTIONS } from "../features/reports/constants";
 import type { ReportCategory } from "../features/reports/types";
 import Pagination from "../shared/ui/Pagination";
-import ReportCard from "../features/reports/components/ReportCard";
+import FeedReportCard from "../features/reports/components/FeedReportCard";
 
 const FeedPage = () => {
   const [page, setPage] = useState(1);
@@ -89,14 +89,16 @@ const FeedPage = () => {
             </>
           ) : data?.reports?.length ? (
             data.reports.map((r) => (
-              <ReportCard
-                to={`/reports/${r.id}`}
+               <FeedReportCard
+                key={r.id}
+                id={r.id}
                 title={r.title}
-                category={getCategoryLabel(r.category)}
-                status={r.status}
-                meta={`Reported by ${r.reporter?.name ?? "Unknown"}`}
                 description={r.description}
-                photos={r.photos}
+                createdAt={r.createdAt}
+                status={r.status}
+                reporterName={r.reporter?.name ?? null}
+                category={r.category}
+                photos={(r.photos ?? []).map((p) => p.url)}
               />
             ))
           ) : (
