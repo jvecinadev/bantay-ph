@@ -10,11 +10,6 @@ type Requester = {
   roleName: "RESIDENT" | "VALIDATOR" | "BARANGAY_STAFF" | "ADMIN" | string;
 };
 
-const canReadReport = (requester: Requester, report: { reporterId: string }) => {
-  if (requester.roleName === "RESIDENT") return report.reporterId === requester.id;
-  return true;
-};
-
 export const createReportService = async (reporterId: string, input: CreateReportBody) => {
   const result = await prisma.$transaction(async (tx) => {
     const report = await tx.report.create({
@@ -99,6 +94,15 @@ export const getMyReportsService = async (reporterId: string, query: GetUserRepo
         updatedAt: true,
         assignedToId: true,
         assignedAt: true,
+
+        photos: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            url: true,
+            createdAt: true,
+          },
+        },
       },
     }),
   ]);
@@ -135,6 +139,15 @@ export const getReportByIdService = async (reportId: string, requester: Requeste
       },
       assignedTo: {
         select: { id: true, name: true, email: true },
+      },
+
+      photos: {
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          url: true,
+          createdAt: true,
+        },
       },
     },
   });
