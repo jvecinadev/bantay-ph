@@ -14,6 +14,7 @@ import CommentForm from "../features/reports/components/CommentForm";
 import HistoryTimeline from "../features/reports/components/HistoryTimeline";
 import VerificationPanel from "../features/verifications/components/VerificationPanel";
 import StaffActionPanel from "../features/staff/components/StaffActionPanel";
+import ReportPhotos from "../features/reports/components/ReportPhotos";
 
 const ReportDetailPage = () => {
   const { id = "" } = useParams();
@@ -50,25 +51,43 @@ const ReportDetailPage = () => {
 
   if (detailQuery.isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-3 w-16 rounded bg-surface-sunken" />
-          <div className="mt-3 h-7 w-3/4 rounded bg-surface-sunken" />
-          <div className="mt-3 flex gap-2">
-            <div className="h-6 w-20 rounded-full bg-surface-sunken" />
-            <div className="h-6 w-24 rounded-full bg-surface-sunken" />
+      <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:gap-8">
+        <div className="min-w-0 space-y-6">
+          <div className="animate-pulse">
+            <div className="h-3 w-16 rounded bg-surface-sunken" />
+            <div className="mt-4 flex gap-2">
+              <div className="h-6 w-24 rounded-full bg-surface-sunken" />
+              <div className="h-6 w-20 rounded-full bg-surface-sunken" />
+            </div>
+            <div className="mt-4 h-8 w-3/4 rounded bg-surface-sunken" />
+            <div className="mt-3 h-3 w-1/2 rounded bg-surface-sunken" />
           </div>
-          <div className="mt-3 h-3 w-1/2 rounded bg-surface-sunken" />
+
+          <div className="animate-pulse rounded-2xl border border-border bg-surface p-5 shadow-card sm:p-6">
+            <div className="h-3 w-24 rounded bg-surface-sunken" />
+            <div className="mt-4 h-3 w-full rounded bg-surface-sunken" />
+            <div className="mt-2 h-3 w-5/6 rounded bg-surface-sunken" />
+            <div className="mt-2 h-3 w-4/6 rounded bg-surface-sunken" />
+          </div>
+
+          <div className="animate-pulse rounded-2xl border border-border bg-surface p-5 shadow-card sm:p-6">
+            <div className="h-3 w-20 rounded bg-surface-sunken" />
+            <div className="mt-4 space-y-3">
+              <div className="h-3 w-full rounded bg-surface-sunken" />
+              <div className="h-3 w-4/6 rounded bg-surface-sunken" />
+            </div>
+          </div>
         </div>
-        <div className="animate-pulse rounded-2xl border border-border bg-surface p-6 shadow-card">
-          <div className="h-3 w-24 rounded bg-surface-sunken" />
-          <div className="mt-4 h-3 w-full rounded bg-surface-sunken" />
-          <div className="mt-2 h-3 w-5/6 rounded bg-surface-sunken" />
-          <div className="mt-2 h-3 w-4/6 rounded bg-surface-sunken" />
-        </div>
-        <div className="animate-pulse rounded-2xl border border-border bg-surface p-6 shadow-card">
-          <div className="h-3 w-20 rounded bg-surface-sunken" />
-          <div className="mt-4 h-8 w-40 rounded-lg bg-surface-sunken" />
+
+        <div className="mt-6 space-y-4 xl:mt-0">
+          <div className="animate-pulse rounded-2xl border border-border bg-surface p-5 shadow-card">
+            <div className="h-3 w-24 rounded bg-surface-sunken" />
+            <div className="mt-4 h-9 w-full rounded-lg bg-surface-sunken" />
+          </div>
+          <div className="animate-pulse rounded-2xl border border-border bg-surface p-5 shadow-card">
+            <div className="h-3 w-16 rounded bg-surface-sunken" />
+            <div className="mt-4 h-8 w-32 rounded-lg bg-surface-sunken" />
+          </div>
         </div>
       </div>
     );
@@ -115,136 +134,137 @@ const ReportDetailPage = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* ============ HEADER ============ */}
-      <div>
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="group inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 rounded-md px-1 py-0.5 -ml-1"
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="transition-transform group-hover:-translate-x-0.5"
+    <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:gap-8">
+      <div className="min-w-0 space-y-6">
+        <div>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="group -ml-1.5 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-sm font-medium text-text-secondary transition-colors hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
           >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          Back
-        </button>
-
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-2.5 py-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
-              {getCategoryLabel(report.category)}
-            </span>
-          </div>
-          <StatusBadge status={report.status} />
-        </div>
-
-        <h1 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-text-primary sm:text-3xl">
-          {report.title}
-        </h1>
-
-        <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary">
-          <span className="inline-flex items-center gap-1.5">
             <svg
-              width="13"
-              height="13"
+              width="14"
+              height="14"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="shrink-0 opacity-70"
+              className="transition-transform group-hover:-translate-x-0.5"
             >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
+              <polyline points="15 18 9 12 15 6" />
             </svg>
-            <span className="font-medium text-text-primary">
-              {report.reporter?.name}
+            Back
+          </button>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-2.5 py-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
+                {getCategoryLabel(report.category)}
+              </span>
+            </div>
+            <StatusBadge status={report.status} />
+          </div>
+
+          <h1 className="mt-4 text-2xl font-bold leading-tight tracking-tight text-text-primary sm:text-3xl">
+            {report.title}
+          </h1>
+
+          <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary">
+            <span className="inline-flex items-center gap-1.5">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="shrink-0 opacity-70"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span className="font-medium text-text-primary">
+                {report.reporter?.name}
+              </span>
             </span>
-          </span>
-          <span className="text-text-secondary/50">•</span>
-          <span>{new Date(report.createdAt).toLocaleString()}</span>
+            <span className="text-text-secondary/50">·</span>
+            <span>{new Date(report.createdAt).toLocaleString()}</span>
+          </div>
+        </div>
+
+        <ReportPhotos title={report.title} photos={report.photos ?? []} />
+
+        <div className="rounded-2xl border border-border bg-surface shadow-card">
+          <div className="p-5 sm:p-6">
+            <div className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
+              Description
+            </div>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
+              {report.description}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* ============ DESCRIPTION + LOCATION ============ */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
-        {/* Description section */}
-        <div className="p-5 sm:p-6">
-          <div className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
-            Description
-          </div>
-          <p className="mt-3 text-sm leading-relaxed text-text-primary whitespace-pre-wrap">
-            {report.description}
-          </p>
-        </div>
+      <aside className="mt-6 xl:row-span-3 xl:mt-0 xl:self-start">
+        <div className="space-y-4 xl:sticky xl:top-24">
+          <VerificationPanel reportId={report.id} status={report.status} />
+          <StaffActionPanel report={report} />
 
-        {/* Location section */}
-        <div className="border-t border-border p-5 sm:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
+          <div className="rounded-2xl border border-border bg-surface shadow-card">
+            <div className="p-5">
               <div className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
                 Location
               </div>
-              <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-surface-sunken px-2.5 py-1">
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-surface-sunken px-2.5 py-1">
                 <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                 <span className="font-mono text-xs text-text-secondary">
                   {report.latitude}, {report.longitude}
                 </span>
               </div>
-            </div>
 
-            {openMapUrl ? (
-              <a
-                href={openMapUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-border-strong bg-surface px-3.5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-primary hover:bg-primary-light hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/10"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              {openMapUrl ? (
+                <a
+                  href={openMapUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl border border-border-strong bg-surface px-3.5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-primary hover:bg-primary-light hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/10"
                 >
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                  <polyline points="15 3 21 3 21 9" />
-                  <line x1="10" y1="14" x2="21" y2="3" />
-                </svg>
-                Open in map
-              </a>
-            ) : null}
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                  Open in map
+                </a>
+              ) : null}
+            </div>
           </div>
         </div>
-      </div>
-      <VerificationPanel reportId={report.id} status={report.status} />
-      <StaffActionPanel report={report} />
-      {/* ============ COMMENTS ============ */}
-      <section className="space-y-4">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight text-text-primary">
-              Comments
-            </h2>
-            <p className="mt-1 text-xs text-text-secondary">
-              Anyone with access can comment.
-            </p>
-          </div>
+      </aside>
+
+      <section className="mt-6 min-w-0 space-y-4 xl:col-start-1 xl:mt-0">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight text-text-primary">
+            Comments
+          </h2>
+          <p className="mt-1 text-xs text-text-secondary">
+            Anyone with access can comment.
+          </p>
         </div>
 
         {commentsQuery.error ? (
@@ -264,7 +284,7 @@ const ReportDetailPage = () => {
                 className="animate-pulse rounded-2xl border border-border bg-surface p-5 shadow-card"
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-surface-sunken" />
+                  <div className="h-9 w-9 rounded-full bg-surface-sunken" />
                   <div className="flex-1">
                     <div className="h-3 w-24 rounded bg-surface-sunken" />
                     <div className="mt-1.5 h-2.5 w-16 rounded bg-surface-sunken" />
@@ -292,14 +312,15 @@ const ReportDetailPage = () => {
             <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
               !
             </span>
-            <span className="leading-relaxed">{addCommentMutation.error.message}</span>
+            <span className="leading-relaxed">
+              {addCommentMutation.error.message}
+            </span>
           </div>
         ) : null}
       </section>
 
-      {/* ============ HISTORY ============ */}
       {canReadHistory ? (
-        <section className="space-y-4">
+        <section className="mt-6 min-w-0 space-y-4 xl:col-start-1 xl:mt-0">
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-text-primary">
               History
