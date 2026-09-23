@@ -46,6 +46,7 @@ export type ReportMineItem = {
   updatedAt: string;
   assignedToId: string | null;
   assignedAt: string | null;
+  photos: ReportPhoto[]
 };
 
 export type Paginated<T> = {
