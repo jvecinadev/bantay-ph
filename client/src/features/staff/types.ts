@@ -1,4 +1,4 @@
-import type { Paginated, ReportCategory, ReportStatus } from "../reports/types";
+import type { Paginated, ReportCategory, ReportPhoto, ReportStatus } from "../reports/types";
 
 export type StaffQueueItem = {
   id: string;
@@ -13,6 +13,7 @@ export type StaffQueueItem = {
     id: string;
     name: string;
   };
+  photos: ReportPhoto[]
 };
 
 export type StaffQueueResponse = Paginated<StaffQueueItem>;
