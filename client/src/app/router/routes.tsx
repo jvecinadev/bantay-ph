@@ -15,4 +15,6 @@ export const ROUTES = {
   adminAuditLogs: "/admin/audit-logs",
 
   unauthorized: "/unauthorized",
+  terms: "/terms",
+  privacy: "/privacy",
 } as const;

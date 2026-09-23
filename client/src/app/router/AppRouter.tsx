@@ -22,6 +22,8 @@ import UnauthorizedPage from "../../pages/UnauthorizedPage";
 import NotFoundPage from "../../pages/NotFoundPage";
 import HomeRedirect from "../../pages/HomeRedirect";
 
+import TermsPage from "../../pages/legal/TermsPage";
+import PrivacyPage from "../../pages/legal/PrivacyPage";
 
 const PERMS = {
   feedRead: ["report:feed:read"],
@@ -35,26 +37,32 @@ const PERMS = {
 };
 
 const router = createBrowserRouter([
+  // Public pages (always accessible)
   {
-    element: <RedirectIfAuthed/>,
+    element: <PublicLayout />,
     children: [
+      { path: ROUTES.terms, element: <TermsPage /> },
+      { path: ROUTES.privacy, element: <PrivacyPage /> },
+
       {
-          element: <PublicLayout />,
-          children: [
-            { path: ROUTES.login, element: <LoginPage /> },
-            { path: ROUTES.register, element: <RegisterPage /> },
+        element: <RedirectIfAuthed />,
+        children: [
+          { path: ROUTES.login, element: <LoginPage /> },
+          { path: ROUTES.register, element: <RegisterPage /> },
         ],
-      }
-    ]
+      },
+    ],
   },
+
   {
     element: <RequireAuth />,
     children: [
       {
         element: <AppLayout />,
         children: [
-          { index: true, element: <HomeRedirect />  },  
+          { index: true, element: <HomeRedirect /> },
           { path: ROUTES.feed, element: <FeedPage /> },
+
           {
             element: <RequirePermissions anyOf={PERMS.reportCreate} />,
             children: [{ path: ROUTES.reportNew, element: <NewReportPage /> }],
@@ -83,15 +91,14 @@ const router = createBrowserRouter([
             element: <RequirePermissions anyOf={PERMS.adminAudit} />,
             children: [{ path: ROUTES.adminAuditLogs, element: <AuditLogsPage /> }],
           },
+
           { path: ROUTES.unauthorized, element: <UnauthorizedPage /> },
         ],
       },
     ],
   },
-  {
-    path: "*",
-    element: <NotFoundPage />,
-  },
+
+  { path: "*", element: <NotFoundPage /> },
 ]);
 
 const AppRouter = () => {
