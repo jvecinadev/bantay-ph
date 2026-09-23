@@ -11,7 +11,7 @@ const LegalLayout = ({ title, lastUpdated, children }: LegalLayoutProps) => {
     <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
       <div className="mb-4">
         <Link
-          to="/"
+          to="/register"
           className="inline-flex items-center gap-2 text-sm font-medium text-text-secondary hover:text-primary"
         >
           <span aria-hidden="true">←</span>
