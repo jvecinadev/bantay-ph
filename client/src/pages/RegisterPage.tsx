@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../app/router/routes";
 import { useRegisterMutation } from "../features/auth/hooks/useAuthMutations";
@@ -7,6 +7,18 @@ import Logo from "../assets/logo.png";
 import Modal from "../shared/ui/Modal";
 import TermsContent from "./legal/TermsContent";
 import PrivacyContent from "./legal/PrivacyContent";
+
+type ValidationDetail = {
+  code?: string;
+  path?: Array<string | number>;
+  message?: string;
+};
+
+type ApiErrorShape = {
+  message?: string;
+  code?: string;
+  details?: ValidationDetail[];
+};
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -21,6 +33,37 @@ const RegisterPage = () => {
   const [agreeTouched, setAgreeTouched] = useState(false);
 
   const [legalOpen, setLegalOpen] = useState<null | "terms" | "privacy">(null);
+
+  const apiError = registerMutation.error as unknown as ApiErrorShape | null;
+  const isValidationError = apiError?.code === "VALIDATION_ERROR";
+
+  const fieldErrors = useMemo(() => {
+    if (!apiError || apiError.code !== "VALIDATION_ERROR" || !Array.isArray(apiError.details)) {
+      return {};
+    }
+
+    const map: Record<string, string> = {};
+
+    for (const d of apiError.details) {
+      const pathArr = Array.isArray(d.path) ? d.path : [];
+      // backend: ["body", "password"] / ["body", "confirmPassword"]
+      const bodyIdx = pathArr.indexOf("body");
+
+      const field =
+        bodyIdx >= 0 && typeof pathArr[bodyIdx + 1] === "string"
+          ? String(pathArr[bodyIdx + 1])
+          : typeof pathArr[pathArr.length - 1] === "string"
+            ? String(pathArr[pathArr.length - 1])
+            : null;
+
+      if (!field) continue;
+      if (!map[field]) map[field] = d.message ?? "Invalid value";
+    }
+
+    return map;
+  }, [apiError]);
+
+  const showAgreeError = agreeTouched && !agree;
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -38,8 +81,6 @@ const RegisterPage = () => {
       // handled by registerMutation.error
     }
   };
-
-  const showAgreeError = agreeTouched && !agree;
 
   return (
     <div className="min-h-dvh bg-background lg:grid lg:grid-cols-2">
@@ -105,12 +146,20 @@ const RegisterPage = () => {
               Create an account to submit and track reports.
             </p>
 
-            {registerMutation.error ? (
+            {/* Show banner only for non-validation errors */}
+            {registerMutation.error && !isValidationError ? (
               <div className="mt-5 flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
                 <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
                   !
                 </span>
                 <span className="leading-relaxed">{registerMutation.error.message}</span>
+              </div>
+            ) : null}
+
+            {/* Optional small hint for validation errors */}
+            {isValidationError ? (
+              <div className="mt-5 rounded-xl border border-border bg-surface-sunken px-4 py-3 text-sm text-text-secondary">
+                Please fix the highlighted fields.
               </div>
             ) : null}
 
@@ -124,11 +173,19 @@ const RegisterPage = () => {
                 </label>
                 <input
                   id="name"
-                  className="mt-2 w-full rounded-xl border border-border-strong bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                  className={[
+                    "mt-2 w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:outline-none focus:ring-4",
+                    fieldErrors.name
+                      ? "border-danger/40 focus:border-danger focus:ring-danger/10"
+                      : "border-border-strong focus:border-primary focus:ring-primary/10",
+                  ].join(" ")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoComplete="name"
                 />
+                {fieldErrors.name ? (
+                  <div className="mt-1 text-xs text-danger">{fieldErrors.name}</div>
+                ) : null}
               </div>
 
               <div>
@@ -141,11 +198,19 @@ const RegisterPage = () => {
                 <input
                   id="email"
                   type="email"
-                  className="mt-2 w-full rounded-xl border border-border-strong bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                  className={[
+                    "mt-2 w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:outline-none focus:ring-4",
+                    fieldErrors.email
+                      ? "border-danger/40 focus:border-danger focus:ring-danger/10"
+                      : "border-border-strong focus:border-primary focus:ring-primary/10",
+                  ].join(" ")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
                 />
+                {fieldErrors.email ? (
+                  <div className="mt-1 text-xs text-danger">{fieldErrors.email}</div>
+                ) : null}
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -158,12 +223,20 @@ const RegisterPage = () => {
                   </label>
                   <input
                     id="password"
-                    className="mt-2 w-full rounded-xl border border-border-strong bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                    className={[
+                      "mt-2 w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:outline-none focus:ring-4",
+                      fieldErrors.password
+                        ? "border-danger/40 focus:border-danger focus:ring-danger/10"
+                        : "border-border-strong focus:border-primary focus:ring-primary/10",
+                    ].join(" ")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     type="password"
                     autoComplete="new-password"
                   />
+                  {fieldErrors.password ? (
+                    <div className="mt-1 text-xs text-danger">{fieldErrors.password}</div>
+                  ) : null}
                 </div>
 
                 <div>
@@ -175,12 +248,20 @@ const RegisterPage = () => {
                   </label>
                   <input
                     id="confirmPassword"
-                    className="mt-2 w-full rounded-xl border border-border-strong bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                    className={[
+                      "mt-2 w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:outline-none focus:ring-4",
+                      fieldErrors.confirmPassword
+                        ? "border-danger/40 focus:border-danger focus:ring-danger/10"
+                        : "border-border-strong focus:border-primary focus:ring-primary/10",
+                    ].join(" ")}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     type="password"
                     autoComplete="new-password"
                   />
+                  {fieldErrors.confirmPassword ? (
+                    <div className="mt-1 text-xs text-danger">{fieldErrors.confirmPassword}</div>
+                  ) : null}
                 </div>
               </div>
 
@@ -241,7 +322,9 @@ const RegisterPage = () => {
                 </label>
 
                 {showAgreeError ? (
-                  <div className="mt-2 text-xs text-danger">You must agree before creating an account.</div>
+                  <div className="mt-2 text-xs text-danger">
+                    You must agree before creating an account.
+                  </div>
                 ) : null}
               </div>
 
@@ -273,7 +356,6 @@ const RegisterPage = () => {
         </div>
       </main>
 
-      {/* Legal modal */}
       <Modal
         open={legalOpen !== null}
         title={legalOpen === "terms" ? "Terms and Conditions" : "Privacy Policy"}
