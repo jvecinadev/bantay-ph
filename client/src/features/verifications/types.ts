@@ -1,4 +1,4 @@
-import type { Paginated, ReportCategory, ReportStatus } from "../reports/types";
+import type { Paginated, ReportCategory, ReportPhoto, ReportStatus } from "../reports/types";
 
 export type VerificationQueueItem = {
   id: string;
@@ -13,6 +13,7 @@ export type VerificationQueueItem = {
     id: string;
     name: string;
   };
+  photos?: ReportPhoto[]
 };
 
 export type VerificationQueueResponse = Paginated<VerificationQueueItem>;

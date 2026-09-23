@@ -43,6 +43,14 @@ export const getVerificationQueueService = async (query: VerificationQueueQuery)
         status: true,
         createdAt: true,
         reporter: { select: { id: true, name: true } },
+         photos: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            url: true,
+            createdAt: true,
+          },
+        },
       },
     }),
   ]);

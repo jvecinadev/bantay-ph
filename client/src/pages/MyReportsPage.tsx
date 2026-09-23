@@ -136,6 +136,8 @@ const MyReportsPage = () => {
                 category={getCategoryLabel(r.category)}
                 status={r.status}
                 meta={`Created ${new Date(r.createdAt).toLocaleString()}`}
+                photoCount={r.photos.length}
+                photos={r.photos}
               />
             ))
           ) : (

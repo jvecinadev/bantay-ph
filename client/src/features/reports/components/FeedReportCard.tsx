@@ -6,11 +6,9 @@ type FeedReportCardProps = {
   description?: string | null;
   createdAt: string;
   status: string;
-
   reporterName?: string | null;
   category?: string | null;
-
-  photos?: string[]; // array of image URLs
+  photos?: string[];
 };
 
 const getInitials = (name?: string | null) => {
@@ -32,6 +30,7 @@ const FeedReportCard = ({
   photos = [],
 }: FeedReportCardProps) => {
   const hasPhotos = photos.length > 0;
+  const photoCount = photos.length;
   const initials = getInitials(reporterName);
   const formattedDate = new Date(createdAt).toLocaleString();
 
@@ -41,92 +40,161 @@ const FeedReportCard = ({
         to={`/reports/${id}`}
         className="block focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
       >
-        {/* ============ AUTHOR ROW (top, small, muted) ============ */}
-        <div className="flex items-center gap-3 px-5 pt-5 sm:px-6 sm:pt-6">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-light text-[11px] font-bold text-primary">
-            {initials}
-          </span>
+        <div className="px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-5">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-[11px] font-bold text-primary">
+              {initials}
+            </span>
 
-          <div className="min-w-0 flex-1 leading-tight">
-            <div className="flex min-w-0 items-center gap-1.5 text-xs">
-              <span className="truncate font-semibold text-text-primary">
-                {reporterName ?? "Unknown"}
-              </span>
-              <span className="shrink-0 text-text-secondary/50">·</span>
-              <span className="shrink-0 text-text-secondary">
-                {formattedDate}
-              </span>
-            </div>
-
-            {/* Category as small inline meta — like "r/Manila" on Reddit */}
-            {category ? (
-              <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-text-secondary">
-                <span className="h-1 w-1 rounded-full bg-primary" />
-                <span className="truncate uppercase tracking-wider">
-                  {category}
+            <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 items-baseline gap-1.5 text-xs">
+                <span className="truncate font-semibold text-text-primary">
+                  {reporterName ?? "Unknown"}
+                </span>
+                <span className="shrink-0 text-text-secondary/50">·</span>
+                <span className="shrink-0 text-text-secondary">
+                  {formattedDate}
                 </span>
               </div>
-            ) : null}
+
+              {category ? (
+                <div className="mt-1 flex items-center gap-1.5 text-[11px] text-text-secondary">
+                  <span className="h-1 w-1 shrink-0 rounded-full bg-primary" />
+                  <span className="truncate uppercase tracking-wider">
+                    {category}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+
+            <span className="shrink-0 rounded-full bg-surface-sunken px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-text-secondary">
+              {status}
+            </span>
           </div>
 
-          {/* Status — small, right-aligned, unobtrusive */}
-          <span className="shrink-0 rounded-full bg-surface-sunken px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-text-secondary">
-            {status}
-          </span>
+          <h3 className="mt-4 text-xl font-bold leading-tight tracking-tight text-text-primary transition-colors group-hover:text-primary sm:text-[1.5rem]">
+            {title}
+          </h3>
+
+          {description ? (
+            <p
+              className={`mt-2.5 text-sm leading-relaxed text-text-secondary ${
+                hasPhotos ? "line-clamp-2" : "line-clamp-4"
+              }`}
+            >
+              {description}
+            </p>
+          ) : null}
         </div>
 
-        {/* ============ HERO: TITLE ============ */}
-        <h3 className="mt-3 px-5 text-xl font-bold leading-tight tracking-tight text-text-primary transition-colors group-hover:text-primary sm:px-6 sm:text-2xl">
-          {title}
-        </h3>
-
-        {/* ============ BODY: DESCRIPTION ============ */}
-        {description ? (
-          <p className="mt-2 line-clamp-2 px-5 text-sm leading-relaxed text-text-secondary sm:px-6">
-            {description}
-          </p>
-        ) : null}
-
-        {/* ============ MEDIA — edge-to-edge, breaks out ============ */}
         {hasPhotos ? (
-          <div className="relative mt-4 border-y border-border bg-surface-sunken">
-            <div className="flex w-full snap-x snap-mandatory overflow-x-auto">
-              {photos.map((url, idx) => (
-                <div
-                  key={`${url}-${idx}`}
-                  className="relative w-full shrink-0 snap-center"
-                >
-                  <div className="relative aspect-4/3 w-full max-h-115 overflow-hidden">
+          <div className="border-y border-border bg-surface-sunken p-1">
+            {photoCount === 1 ? (
+              <div className="relative aspect-4/3 overflow-hidden rounded-lg">
+                <img
+                  src={photos[0]}
+                  alt={title}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            ) : photoCount === 2 ? (
+              <div className="grid aspect-2/1 grid-cols-2 gap-1">
+                {photos.map((url, idx) => (
+                  <div
+                    key={`${url}-${idx}`}
+                    className="relative overflow-hidden rounded-lg"
+                  >
                     <img
                       src={url}
-                      alt={title}
-                      className="absolute inset-0 h-full w-full object-cover"
+                      alt={`${title} — photo ${idx + 1}`}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                       loading="lazy"
                       decoding="async"
                     />
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {photos.length > 1 ? (
-              <div className="absolute right-3 top-3 rounded-full border border-border/60 bg-surface/90 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-text-primary shadow-card backdrop-blur-sm">
-                {photos.length} photos
+                ))}
               </div>
-            ) : null}
-          </div>
-        ) : null}
+            ) : photoCount === 3 ? (
+              <div className="grid aspect-4/3 grid-cols-2 grid-rows-2 gap-1">
+                <div className="relative row-span-2 overflow-hidden rounded-lg">
+                  <img
+                    src={photos[0]}
+                    alt={`${title} — photo 1`}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                {photos.slice(1, 3).map((url, idx) => (
+                  <div
+                    key={`${url}-${idx + 1}`}
+                    className="relative overflow-hidden rounded-lg"
+                  >
+                    <img
+                      src={url}
+                      alt={`${title} — photo ${idx + 2}`}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid aspect-4/3 grid-cols-2 grid-rows-2 gap-1">
+                {photos.slice(0, 4).map((url, idx) => {
+                  const isLastVisible = idx === 3;
+                  const overflow = photoCount - 4;
+                  const showOverlay = isLastVisible && overflow > 0;
 
-        {/* ============ ACTION BAR (bottom, like FB/Reddit) ============ */}
-        <div className="flex items-center justify-between gap-3 border-t border-border bg-surface-sunken/50 px-5 py-3 sm:px-6">
+                  return (
+                    <div
+                      key={`${url}-${idx}`}
+                      className="relative overflow-hidden rounded-lg"
+                    >
+                      <img
+                        src={url}
+                        alt={`${title} — photo ${idx + 1}`}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                        loading="lazy"
+                        decoding="async"
+                      />
+
+                      {showOverlay ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-text-primary/70 backdrop-blur-sm">
+                          <span className="text-2xl font-bold tracking-tight text-surface">
+                            +{overflow}
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mx-5 h-px bg-border sm:mx-6" />
+        )}
+
+        <div className="flex items-center justify-between gap-3 px-5 py-3.5 sm:px-6">
           <span className="inline-flex items-center gap-1.5 text-xs text-text-secondary">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            {hasPhotos
-              ? `${photos.length} ${photos.length === 1 ? "photo" : "photos"}`
-              : "View report"}
+            {hasPhotos ? (
+              <>
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                {photoCount} {photoCount === 1 ? "photo" : "photos"}
+              </>
+            ) : (
+              <>
+                <span className="h-1.5 w-1.5 rounded-full bg-status-under-verification" />
+                Full written report
+              </>
+            )}
           </span>
 
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-60 transition-opacity duration-200 group-hover:opacity-100">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
             Read more
             <span className="transition-transform duration-200 group-hover:translate-x-0.5">
               →
