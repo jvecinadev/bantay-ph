@@ -13,31 +13,53 @@ type NavItem = {
   anyOf?: string[];
 };
 
-const NAV_ITEMS: NavItem[] = [
-  { label: "Feed", to: ROUTES.feed, anyOf: ["report:feed:read"] },
-  { label: "New Report", to: ROUTES.reportNew, anyOf: ["report:create"] },
-  { label: "My Reports", to: ROUTES.reportMine, anyOf: ["report:read:own"] },
-  { label: "Verification Queue", to: ROUTES.validatorQueue, anyOf: ["verification:queue:read"] },
-  { label: "Staff Queue", to: ROUTES.staffQueue, anyOf: ["report:staff_queue:read"] },
+type NavSection = {
+  label: string;
+  items: NavItem[];
+};
+
+const NAV_SECTIONS: NavSection[] = [
   {
-    label: "Users",
-    to: ROUTES.adminUsers,
-    anyOf: ["user:read", "user:update_role", "user:update_status"],
+    label: "Main",
+    items: [
+      { label: "Feed", to: ROUTES.feed, anyOf: ["report:feed:read"] },
+      { label: "New Report", to: ROUTES.reportNew, anyOf: ["report:create"] },
+      { label: "My Reports", to: ROUTES.reportMine, anyOf: ["report:read:own"] },
+    ],
   },
-  { label: "Audit Logs", to: ROUTES.adminAuditLogs, anyOf: ["audit:read"] },
+  {
+    label: "Moderation",
+    items: [
+      { label: "Verification Queue", to: ROUTES.validatorQueue, anyOf: ["verification:queue:read"] },
+      { label: "Staff Queue", to: ROUTES.staffQueue, anyOf: ["report:staff_queue:read"] },
+    ],
+  },
+  {
+    label: "Admin",
+    items: [
+      {
+        label: "Users",
+        to: ROUTES.adminUsers,
+        anyOf: ["user:read", "user:update_role", "user:update_status"],
+      },
+      { label: "Audit Logs", to: ROUTES.adminAuditLogs, anyOf: ["audit:read"] },
+    ],
+  },
 ];
 
 const Sidebar = ({ open, onClose }: SidebarProps) => {
   const bootstrapped = useAuthStore((s) => s.bootstrapped);
   const hasAnyPermission = useAuthStore((s) => s.hasAnyPermission);
 
-  const visibleItems = bootstrapped
-    ? NAV_ITEMS.filter((item) => hasAnyPermission(item.anyOf ?? []))
+  const visibleSections = bootstrapped
+    ? NAV_SECTIONS.map((section) => ({
+        ...section,
+        items: section.items.filter((item) => hasAnyPermission(item.anyOf ?? [])),
+      })).filter((section) => section.items.length > 0)
     : [];
 
   return (
     <>
-      {/* Mobile overlay */}
       <div
         className={[
           "fixed inset-0 z-40 bg-text-primary/40 backdrop-blur-sm transition-opacity lg:hidden",
@@ -47,22 +69,22 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
         aria-hidden="true"
       />
 
-      {/* Drawer on mobile, sticky on desktop */}
       <aside
         className={[
-          "fixed left-0 top-0 z-50 h-dvh w-72 border-r border-border bg-surface transition-transform lg:sticky lg:top-16 lg:z-10 lg:h-[calc(100dvh-4rem)] lg:w-64 lg:translate-x-0",
+          "fixed left-0 top-0 z-50 h-dvh w-72 border-r border-border bg-surface transition-transform lg:sticky lg:top-16 lg:z-10 lg:h-[calc(100dvh-4rem)] lg:w-60 lg:translate-x-0",
           "overflow-y-auto",
           open ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
         aria-label="Sidebar navigation"
       >
-        {/* Mobile header */}
         <div className="flex items-center justify-between border-b border-border px-4 py-3 lg:hidden">
-          <div className="text-sm font-semibold text-text-primary">Navigation</div>
+          <div className="text-sm font-semibold tracking-tight text-text-primary">
+            Navigation
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/10"
             aria-label="Close navigation menu"
           >
             <svg
@@ -78,34 +100,55 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
           </button>
         </div>
 
-        <nav className="flex flex-col gap-1 p-3">
+        <div className="px-3 py-4">
           {!bootstrapped ? (
-            <div className="rounded-lg bg-surface-sunken px-3 py-2.5 text-sm text-text-secondary">
+            <div className="px-2 py-1.5 text-xs text-text-secondary">
               Loading navigation…
             </div>
-          ) : visibleItems.length === 0 ? (
-            <div className="rounded-lg bg-surface-sunken px-3 py-2.5 text-sm text-text-secondary">
+          ) : visibleSections.length === 0 ? (
+            <div className="px-2 py-1.5 text-xs text-text-secondary">
               No available pages for your account.
             </div>
           ) : (
-            visibleItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  [
-                    "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-primary-light text-primary"
-                      : "text-text-secondary hover:bg-surface-sunken hover:text-text-primary",
-                  ].join(" ")
-                }
-              >
-                {item.label}
-              </NavLink>
+            visibleSections.map((section, idx) => (
+              <div key={section.label} className={idx > 0 ? "mt-6" : ""}>
+                <div className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-text-secondary/70">
+                  {section.label}
+                </div>
+
+                <nav className="flex flex-col">
+                  {section.items.map((item) => (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      className={({ isActive }) =>
+                        [
+                          "relative flex items-center rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors",
+                          isActive
+                            ? "bg-primary-light text-primary"
+                            : "text-text-secondary hover:bg-surface-sunken hover:text-text-primary",
+                        ].join(" ")
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <span
+                            className={[
+                              "absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-r-full bg-primary transition-opacity",
+                              isActive ? "opacity-100" : "opacity-0",
+                            ].join(" ")}
+                            aria-hidden="true"
+                          />
+                          <span className="truncate">{item.label}</span>
+                        </>
+                      )}
+                    </NavLink>
+                  ))}
+                </nav>
+              </div>
             ))
           )}
-        </nav>
+        </div>
       </aside>
     </>
   );

@@ -90,26 +90,26 @@ const FeedReportCard = ({
         {hasPhotos ? (
           <div className="border-y border-border bg-surface-sunken p-1">
             {photoCount === 1 ? (
-              <div className="relative aspect-4/3 overflow-hidden rounded-lg">
+              <div className="relative h-64 w-full overflow-hidden rounded-lg bg-text-primary/5 sm:h-80">
                 <img
                   src={photos[0]}
                   alt={title}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                  className="absolute inset-0 h-full w-full object-contain"
                   loading="lazy"
                   decoding="async"
                 />
               </div>
             ) : photoCount === 2 ? (
-              <div className="grid aspect-2/1 grid-cols-2 gap-1">
+              <div className="grid h-56 w-full grid-cols-2 gap-1 sm:h-72">
                 {photos.map((url, idx) => (
                   <div
                     key={`${url}-${idx}`}
-                    className="relative overflow-hidden rounded-lg"
+                    className="relative overflow-hidden rounded-lg bg-text-primary/5"
                   >
                     <img
                       src={url}
-                      alt={`${title} — photo ${idx + 1}`}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                      alt={`${title} photo ${idx + 1}`}
+                      className="absolute inset-0 h-full w-full object-contain"
                       loading="lazy"
                       decoding="async"
                     />
@@ -117,12 +117,12 @@ const FeedReportCard = ({
                 ))}
               </div>
             ) : photoCount === 3 ? (
-              <div className="grid aspect-4/3 grid-cols-2 grid-rows-2 gap-1">
-                <div className="relative row-span-2 overflow-hidden rounded-lg">
+              <div className="grid h-64 w-full grid-cols-2 grid-rows-2 gap-1 sm:h-80">
+                <div className="relative row-span-2 overflow-hidden rounded-lg bg-text-primary/5">
                   <img
                     src={photos[0]}
-                    alt={`${title} — photo 1`}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    alt={`${title} photo 1`}
+                    className="absolute inset-0 h-full w-full object-contain"
                     loading="lazy"
                     decoding="async"
                   />
@@ -130,12 +130,12 @@ const FeedReportCard = ({
                 {photos.slice(1, 3).map((url, idx) => (
                   <div
                     key={`${url}-${idx + 1}`}
-                    className="relative overflow-hidden rounded-lg"
+                    className="relative overflow-hidden rounded-lg bg-text-primary/5"
                   >
                     <img
                       src={url}
-                      alt={`${title} — photo ${idx + 2}`}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                      alt={`${title} photo ${idx + 2}`}
+                      className="absolute inset-0 h-full w-full object-contain"
                       loading="lazy"
                       decoding="async"
                     />
@@ -143,7 +143,7 @@ const FeedReportCard = ({
                 ))}
               </div>
             ) : (
-              <div className="grid aspect-4/3 grid-cols-2 grid-rows-2 gap-1">
+              <div className="grid h-64 w-full grid-cols-2 grid-rows-2 gap-1 sm:h-80">
                 {photos.slice(0, 4).map((url, idx) => {
                   const isLastVisible = idx === 3;
                   const overflow = photoCount - 4;
@@ -152,12 +152,12 @@ const FeedReportCard = ({
                   return (
                     <div
                       key={`${url}-${idx}`}
-                      className="relative overflow-hidden rounded-lg"
+                      className="relative overflow-hidden rounded-lg bg-text-primary/5"
                     >
                       <img
                         src={url}
-                        alt={`${title} — photo ${idx + 1}`}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                        alt={`${title} photo ${idx + 1}`}
+                        className="absolute inset-0 h-full w-full object-contain"
                         loading="lazy"
                         decoding="async"
                       />
