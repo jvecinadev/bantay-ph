@@ -10,6 +10,7 @@ export const ROUTES = {
 
   validatorQueue: "/validator/queue",
   staffQueue: "/staff/queue",
+  staffDashboard: "/staff/dashboard",
 
   adminUsers: "/admin/users",
   adminAuditLogs: "/admin/audit-logs",
