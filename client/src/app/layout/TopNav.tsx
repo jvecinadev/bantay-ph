@@ -10,7 +10,6 @@ type TopNavProps = {
   onOpenSidebar: () => void;
 };
 
-
 const THEME_KEY = "bantay-theme";
 
 const TopNav = ({ onOpenSidebar }: TopNavProps) => {
@@ -27,17 +26,16 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-  try {
-    const stored = localStorage.getItem(THEME_KEY);
-    const shouldBeDark = stored === "dark";
+    try {
+      const stored = localStorage.getItem(THEME_KEY);
+      const shouldBeDark = stored === "dark";
 
-    document.documentElement.classList.toggle("dark", shouldBeDark);
-    setIsDark(shouldBeDark);
-  } catch {
-  }
-}, []);
+      document.documentElement.classList.toggle("dark", shouldBeDark);
+      setIsDark(shouldBeDark);
+    } catch {
+    }
+  }, []);
 
-  // Close on outside click
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e: MouseEvent) => {
@@ -49,7 +47,6 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
     return () => document.removeEventListener("mousedown", handler);
   }, [menuOpen]);
 
-  // Close on Escape
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e: KeyboardEvent) => {
@@ -66,7 +63,6 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
     try {
       localStorage.setItem(THEME_KEY, next ? "dark" : "light");
     } catch {
-      // ignore
     }
   };
 
@@ -78,7 +74,6 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
       await logoutMutation.mutateAsync();
       navigate(ROUTES.login, { replace: true });
     } catch {
-      // ignore
     }
   };
 
@@ -88,13 +83,12 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
 
   return (
     <header className="sticky top-0 z-30 w-full border-b border-border bg-surface/95 backdrop-blur-sm">
-      <div className="flex h-14 w-full items-center gap-3 px-4 sm:h-16 sm:px-6">
-        {/* Hamburger — mobile only */}
+      <div className="flex h-14 w-full items-center gap-3 px-3 sm:h-16 sm:gap-4 sm:px-6">
         <button
           type="button"
           onClick={onOpenSidebar}
           aria-label="Open sidebar"
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary focus:outline-none focus:ring-4 focus:ring-primary/10 lg:hidden"
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 lg:hidden"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="3" y1="6" x2="21" y2="6" />
@@ -103,16 +97,19 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
           </svg>
         </button>
 
-        {/* Brand */}
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary shadow-card">
-            <img src={Logo} alt="" />
-          </div>
+        <div className="flex min-w-0 items-center gap-2.5">
+          <img
+            src={Logo}
+            alt="Bantay PH"
+            draggable={false}
+            className="h-8 w-8 shrink-0 object-contain sm:h-9 sm:w-9"
+          />
+
           <div className="min-w-0 leading-tight">
             <div className="truncate text-sm font-bold tracking-tight text-text-primary">
               Bantay PH
             </div>
-            <div className="hidden truncate text-xs text-text-secondary sm:block">
+            <div className="hidden truncate text-[11px] text-text-secondary sm:block">
               Community Issue Reporting
             </div>
           </div>
@@ -120,16 +117,14 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
 
         <div className="flex-1" />
 
-        {/* ============ ACCOUNT DROPDOWN ============ */}
         <div className="relative" ref={menuRef}>
-          {/* Trigger */}
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             className={[
-              "group inline-flex items-center gap-2 rounded-full border py-1 pl-1 pr-2.5 transition-all duration-150 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20",
+              "group inline-flex items-center gap-2 rounded-full border py-1 pl-1 pr-2 transition-all duration-150 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20",
               menuOpen
                 ? "border-primary/40 bg-primary-light/60"
                 : "border-border bg-surface hover:border-border-strong hover:bg-surface-sunken",
@@ -137,7 +132,7 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
           >
             <span
               className={[
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors",
+                "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-colors sm:h-8 sm:w-8 sm:text-xs",
                 menuOpen
                   ? "bg-primary text-surface"
                   : "bg-primary-light text-primary",
@@ -146,7 +141,7 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
               {initials}
             </span>
 
-            <span className="hidden max-w-36 truncate text-sm font-semibold tracking-tight text-text-primary sm:inline">
+            <span className="hidden max-w-36 truncate text-sm font-semibold tracking-tight text-text-primary md:inline">
               {displayName}
             </span>
 
@@ -168,19 +163,16 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
             </svg>
           </button>
 
-          {/* Dropdown */}
           {menuOpen ? (
             <div
               role="menu"
               className="absolute right-0 top-[calc(100%+10px)] z-50 w-68 origin-top-right overflow-hidden rounded-2xl border border-border bg-surface shadow-popover"
             >
-              {/* Brand accent strip */}
               <div className="flex h-1 w-full">
                 <span className="flex-1 bg-primary" />
                 <span className="flex-1 bg-accent" />
               </div>
 
-              {/* Header — user identity */}
               <div className="flex items-center gap-3 px-4 py-4">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-bold text-primary">
                   {initials}
@@ -199,7 +191,6 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
 
               <div className="h-px bg-border" />
 
-              {/* Theme toggle */}
               <button
                 type="button"
                 role="menuitem"
@@ -229,7 +220,6 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
                   </span>
                 </span>
 
-                {/* Switch visual */}
                 <span
                   className={[
                     "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200",
@@ -247,7 +237,6 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
 
               <div className="h-px bg-border" />
 
-              {/* Logout */}
               <button
                 type="button"
                 role="menuitem"
