@@ -1,7 +1,7 @@
 type StatCardProps = {
   label: string;
   value: React.ReactNode;
-  sub?: string;
+  sub?: React.ReactNode;
 };
 
 const StatCard = ({ label, value, sub }: StatCardProps) => {
@@ -13,7 +13,7 @@ const StatCard = ({ label, value, sub }: StatCardProps) => {
       <div className="mt-2 text-2xl font-bold tracking-tight text-text-primary">
         {value}
       </div>
-      {sub ? <div className="mt-1 text-xs text-text-secondary">{sub}</div> : null}
+      {sub ? <div className="mt-2 text-xs text-text-secondary">{sub}</div> : null}
     </div>
   );
 };
