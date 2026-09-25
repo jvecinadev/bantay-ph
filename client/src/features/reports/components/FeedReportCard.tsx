@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { getInitials } from "../../../lib/helper/getInitials";
 
 type FeedReportCardProps = {
   id: string;
@@ -6,17 +7,9 @@ type FeedReportCardProps = {
   description?: string | null;
   createdAt: string;
   status: string;
-  reporterName?: string | null;
+  reporterName?: string;
   category?: string | null;
   photos?: string[];
-};
-
-const getInitials = (name?: string | null) => {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
 const FeedReportCard = ({

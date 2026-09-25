@@ -1,4 +1,5 @@
 import type { AuditLog } from "../types";
+import { getInitials } from "../../../lib/helper/getInitials";
 
 type Props = {
   log: AuditLog;
@@ -12,14 +13,6 @@ const safeParseDetails = (details: string): Record<string, unknown> | null => {
   } catch {
     return null;
   }
-};
-
-const getInitials = (name?: string) => {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
 // Color-code the action by its verb prefix, so similar actions look similar.
