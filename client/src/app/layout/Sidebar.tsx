@@ -44,6 +44,7 @@ const NAV_SECTIONS: NavSection[] = [
         anyOf: ["user:read", "user:update_role", "user:update_status"],
       },
       { label: "Audit Logs", to: ROUTES.adminAuditLogs, anyOf: ["audit:read"] },
+      { label: "Admin Dashboard", to: ROUTES.adminDashboard, anyOf: ["audit:read", "user:read"] },
     ],
   },
 ];
