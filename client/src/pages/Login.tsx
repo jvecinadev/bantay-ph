@@ -22,6 +22,7 @@ const LoginPage = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [legalOpen, setLegalOpen] = useState<null | "terms" | "privacy">(null);
 
@@ -85,9 +86,7 @@ const LoginPage = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="mb-8 flex items-center justify-center gap-3 lg:hidden">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
-              <div className="h-4 w-4 rounded-full bg-accent" />
-            </div>
+            <img src={Logo} alt="Bantay PH" className="h-10 w-10 object-contain" />
             <div>
               <div className="text-sm font-bold text-text-primary">Bantay PH</div>
               <div className="text-xs text-text-secondary">Community Issue Reporting</div>
@@ -134,15 +133,25 @@ const LoginPage = () => {
                     Password
                   </label>
                 </div>
-                <input
-                  id="password"
-                  className="mt-2 w-full rounded-xl border border-border-strong bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  type="password"
-                  autoComplete="current-password"
-                />
+                <div className="relative mt-2">
+                  <input
+                    id="password"
+                    className="w-full rounded-xl border border-border-strong bg-surface px-4 py-2.5 pr-16 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-semibold text-text-secondary transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
               </div>
 
               <button
