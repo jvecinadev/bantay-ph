@@ -1,21 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../router/routes";
+import { getInitials } from "../../lib/helper/getInitials";
 import { useLogoutMutation } from "../../features/auth/hooks/useAuthMutations";
 import useAuthStore from "../../stores/authStore";
-import Logo from '../../assets/logo.png'
+import Logo from '../../assets/logo.png';
 
 type TopNavProps = {
   onOpenSidebar: () => void;
 };
 
-const getInitials = (name?: string) => {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-};
 
 const THEME_KEY = "bantay-theme";
 

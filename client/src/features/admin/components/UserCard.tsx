@@ -1,8 +1,10 @@
 import { useMemo } from "react";
 import useAuthStore from "../../../stores/authStore";
 import type { AdminUser, RoleName, UserStatus } from "../types";
+import { getInitials } from "../../../lib/helper/getInitials";
 import useUpdateUserRoleMutation from "../hooks/useUpdateUserRoleMutation";
 import useUpdateUserStatusMutation from "../hooks/useUpdateUserStatusMutation";
+
 
 type Props = {
   user: AdminUser;
@@ -10,12 +12,6 @@ type Props = {
 
 const ROLE_OPTIONS: RoleName[] = ["RESIDENT", "VALIDATOR", "BARANGAY_STAFF", "ADMIN"];
 
-const getInitials = (name: string) => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-};
 
 const ROLE_TINTS: Record<RoleName, string> = {
   RESIDENT: "bg-surface-sunken text-text-secondary",

@@ -42,7 +42,7 @@ const FeedPage = () => {
           </a>
         </div>
 
-        <div className="-mx-4 mt-5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:overflow-visible sm:px-0">
+        <div className="-mx-4 mt-5 overflow-x-auto px-4 pb-1 scrollbar-none [&::-webkit-scrollbar]:hidden sm:mx-0 sm:overflow-visible sm:px-0">
           <div className="flex gap-2 sm:flex-wrap">
             <button
               type="button"
