@@ -1,4 +1,4 @@
-import type { ReportCategory, ReportStatus } from "../../reports/types";
+import type { ReportCategory, ReportStatus, ReportPhoto } from "../../reports/types";
 
 export type StaffDashboardPreviewReport = {
   id: string;
@@ -8,6 +8,17 @@ export type StaffDashboardPreviewReport = {
   createdAt: string;
   reporter: { id: string; name: string };
   photos: Array<{ id: string; url: string; createdAt: string }>; // thumbnail max 1, can be []
+};
+
+export type StaffDashboardActiveReport = {
+  id: string;
+  title: string;
+  category?: ReportCategory;
+  status: ReportStatus; 
+  createdAt?: string;
+  updatedAt?: string;
+  assignedAt?: string;
+  photos?: ReportPhoto[];
 };
 
 export type StaffDashboardData = {
