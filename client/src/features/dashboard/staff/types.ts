@@ -7,7 +7,7 @@ export type StaffDashboardPreviewReport = {
   status: ReportStatus;
   createdAt: string;
   reporter: { id: string; name: string };
-  photos: Array<{ id: string; url: string; createdAt: string }>; // thumbnail max 1, can be []
+  photos: Array<{ id: string; url: string; createdAt: string }>; 
 };
 
 export type StaffDashboardActiveReport = {
@@ -30,7 +30,7 @@ export type StaffDashboardData = {
   unassignedVerifiedByCategory: Record<string, number>;
 
   myAssignedCounts: Partial<Record<"ASSIGNED" | "IN_PROGRESS", number>>;
-  myActiveReports: Array<any>; // we’ll type this properly in the next step once you show shape
+  myActiveReports: Array<any>; 
   myActiveCount: number;
   myOverdue48hCount: number;
 
