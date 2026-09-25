@@ -22,6 +22,7 @@ import UnauthorizedPage from "../../pages/UnauthorizedPage";
 import NotFoundPage from "../../pages/NotFoundPage";
 import HomeRedirect from "../../pages/HomeRedirect";
 import StaffDashboardPage from "../../pages/StaffDashboardPage";
+import AdminDashboardPage from "../../pages/AdminDashboardPage";
 
 import TermsPage from "../../pages/legal/TermsPage";
 import PrivacyPage from "../../pages/legal/PrivacyPage";
@@ -36,6 +37,7 @@ const PERMS = {
   adminUsers: ["user:read", "user:update_role", "user:update_status"],
   adminAudit: ["audit:read"],
   reportDetailRead: ["report:read", "report:read:own", "report:feed:read"],
+  adminDashboard: ["audit:read", "user:read"]
 };
 
 const router = createBrowserRouter([
@@ -95,6 +97,10 @@ const router = createBrowserRouter([
           {
             element: <RequirePermissions anyOf={PERMS.adminAudit} />,
             children: [{ path: ROUTES.adminAuditLogs, element: <AuditLogsPage /> }],
+          },
+          {
+            element: <RequirePermissions anyOf={PERMS.adminDashboard} />,
+            children: [{ path: ROUTES.adminDashboard, element: <AdminDashboardPage /> }],
           },
 
           { path: ROUTES.unauthorized, element: <UnauthorizedPage /> },

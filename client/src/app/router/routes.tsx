@@ -14,6 +14,7 @@ export const ROUTES = {
 
   adminUsers: "/admin/users",
   adminAuditLogs: "/admin/audit-logs",
+  adminDashboard: "/admin/dashboard",
 
   unauthorized: "/unauthorized",
   terms: "/terms",
