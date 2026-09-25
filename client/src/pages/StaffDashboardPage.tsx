@@ -1,21 +1,12 @@
 import { Link } from "react-router-dom";
 import { ROUTES } from "../app/router/routes";
+import { getErrorMessage } from "../lib/helper/getErrorMessage";
 
 import useStaffDashboardQuery from "../features/dashboard/staff/hooks/useStaffDashboardQuery";
 import Section from "../features/dashboard/staff/components/Section";
 import UnassignedVerifiedPreview from "../features/dashboard/staff/components/UnassignedVerifiedPreview";
 import UnassignedByCategoryCard from "../features/dashboard/staff/components/UnassignedByCategoryCard";
 import MyActiveReportsCard from "../features/dashboard/staff/components/MyActiveReportsCard";
-
-const getErrorMessage = (err: unknown) => {
-  if (!err) return "Something went wrong.";
-  if (typeof err === "string") return err;
-  if (typeof err === "object" && "message" in err) {
-    const msg = (err as { message?: unknown }).message;
-    if (typeof msg === "string" && msg.trim()) return msg;
-  }
-  return "Something went wrong.";
-};
 
 const StaffDashboardPage = () => {
   const q = useStaffDashboardQuery();
