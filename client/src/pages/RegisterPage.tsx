@@ -29,6 +29,9 @@ const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [agree, setAgree] = useState(false);
   const [agreeTouched, setAgreeTouched] = useState(false);
 
@@ -46,7 +49,6 @@ const RegisterPage = () => {
 
     for (const d of apiError.details) {
       const pathArr = Array.isArray(d.path) ? d.path : [];
-      // backend: ["body", "password"] / ["body", "confirmPassword"]
       const bodyIdx = pathArr.indexOf("body");
 
       const field =
@@ -128,11 +130,7 @@ const RegisterPage = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="mb-8 flex items-center justify-center gap-3 lg:hidden">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary shadow-card">
-              <div className="relative h-4 w-4 rounded-full bg-accent">
-                <span className="absolute inset-0 -m-1 rounded-full border border-accent/40" />
-              </div>
-            </div>
+            <img src={Logo} alt="Bantay PH" className="h-10 w-10 object-contain" />
             <div className="leading-tight">
               <div className="text-sm font-bold tracking-tight text-text-primary">Bantay PH</div>
               <div className="text-xs text-text-secondary">Community Issue Reporting</div>
@@ -221,19 +219,29 @@ const RegisterPage = () => {
                   >
                     Password
                   </label>
-                  <input
-                    id="password"
-                    className={[
-                      "mt-2 w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:outline-none focus:ring-4",
-                      fieldErrors.password
-                        ? "border-danger/40 focus:border-danger focus:ring-danger/10"
-                        : "border-border-strong focus:border-primary focus:ring-primary/10",
-                    ].join(" ")}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    type="password"
-                    autoComplete="new-password"
-                  />
+                  <div className="relative mt-2">
+                    <input
+                      id="password"
+                      className={[
+                        "w-full rounded-xl border bg-surface py-2.5 pl-4 pr-14 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:outline-none focus:ring-4",
+                        fieldErrors.password
+                          ? "border-danger/40 focus:border-danger focus:ring-danger/10"
+                          : "border-border-strong focus:border-primary focus:ring-primary/10",
+                      ].join(" ")}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-semibold text-text-secondary transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+                    >
+                      {showPassword ? "Hide" : "Show"}
+                    </button>
+                  </div>
                   {fieldErrors.password ? (
                     <div className="mt-1 text-xs text-danger">{fieldErrors.password}</div>
                   ) : null}
@@ -246,19 +254,29 @@ const RegisterPage = () => {
                   >
                     Confirm Password
                   </label>
-                  <input
-                    id="confirmPassword"
-                    className={[
-                      "mt-2 w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:outline-none focus:ring-4",
-                      fieldErrors.confirmPassword
-                        ? "border-danger/40 focus:border-danger focus:ring-danger/10"
-                        : "border-border-strong focus:border-primary focus:ring-primary/10",
-                    ].join(" ")}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    type="password"
-                    autoComplete="new-password"
-                  />
+                  <div className="relative mt-2">
+                    <input
+                      id="confirmPassword"
+                      className={[
+                        "w-full rounded-xl border bg-surface py-2.5 pl-4 pr-14 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus:outline-none focus:ring-4",
+                        fieldErrors.confirmPassword
+                          ? "border-danger/40 focus:border-danger focus:ring-danger/10"
+                          : "border-border-strong focus:border-primary focus:ring-primary/10",
+                      ].join(" ")}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      type={showConfirmPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-semibold text-text-secondary transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+                    >
+                      {showConfirmPassword ? "Hide" : "Show"}
+                    </button>
+                  </div>
                   {fieldErrors.confirmPassword ? (
                     <div className="mt-1 text-xs text-danger">{fieldErrors.confirmPassword}</div>
                   ) : null}
