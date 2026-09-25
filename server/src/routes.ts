@@ -3,6 +3,7 @@ import authRoutes from './modules/auth/auth.routes'
 import reportRoutes from './modules/reports/report.routes'
 import verificationRoutes from './modules/verifications/verification.routes'
 import adminRoutes from './modules/admin/admin.routes'
+import dashboardRoutes from './modules/dashboard/dashboard.routes'
 
 const router = Router()
 
@@ -16,6 +17,6 @@ router.use("/auth", authRoutes)
 router.use("/reports", reportRoutes)
 router.use("/verifications", verificationRoutes)
 router.use("/admin", adminRoutes)
-
+router.use("/dashboard", dashboardRoutes)
 export default router;
 
