@@ -1,79 +1,90 @@
+// src/modules/dashboard/staffDashboard.service.ts
 import { prisma } from "../../db/prisma";
-import type { ReportStatus } from "@prisma/client";
 
-type StaffDashboardResult = {
-  unassignedVerifiedCount: number;
-  myAssignedCounts: {
-    ASSIGNED: number;
-    IN_PROGRESS: number;
-  };
-  myResolvedLast7Days: number;
-  unassignedVerifiedPreview: Array<{
-    id: string;
-    title: string;
-    category: any;
-    status: ReportStatus;
-    createdAt: Date;
-    reporter: { id: string; name: string };
-    photos: Array<{ id: string; url: string; createdAt: Date }>;
-  }>;
-  myActiveReports: Array<{
-    id: string;
-    title: string;
-    category: any;
-    status: ReportStatus;
-    assignedAt: Date | null;
-    updatedAt: Date;
-    reporter: { id: string; name: string };
-    photos: Array<{ id: string; url: string; createdAt: Date }>;
-  }>;
-};
+type CountMap = Record<string, number>;
 
-export const getStaffDashboardService = async (staffId: string): Promise<StaffDashboardResult> => {
+export async function getStaffDashboardService(userId: string) {
   const now = new Date();
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  // SLA: 48 hours
+  const slaCutoff = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+
+  // Last 7 days
+  const last7DaysStart = new Date(now);
+  last7DaysStart.setDate(last7DaysStart.getDate() - 7);
+
+  const activeStatuses = ["ASSIGNED", "IN_PROGRESS"] as const;
 
   const [
+    // Queue
     unassignedVerifiedCount,
-    myAssignedGrouped,
+    unassignedVerifiedOverdue48hCount,
+    unassignedVerifiedOldestAgg,
+    unassignedVerifiedByCategoryRows,
+
+    // My workload
+    myAssignedCountsRows,
+    myOverdue48hCount,
+
+    // Throughput
     myResolvedLast7Days,
+
+    // Previews
     unassignedVerifiedPreview,
     myActiveReports,
   ] = await Promise.all([
     prisma.report.count({
+      where: { status: "VERIFIED", assignedToId: null },
+    }),
+
+    prisma.report.count({
       where: {
         status: "VERIFIED",
         assignedToId: null,
+        createdAt: { lte: slaCutoff },
       },
     }),
 
-    // B) My assigned counts grouped (ASSIGNED, IN_PROGRESS)
+    prisma.report.aggregate({
+      where: { status: "VERIFIED", assignedToId: null },
+      _min: { createdAt: true },
+    }),
+
+    prisma.report.groupBy({
+      by: ["category"],
+      where: { status: "VERIFIED", assignedToId: null },
+      _count: { _all: true },
+    }),
+
     prisma.report.groupBy({
       by: ["status"],
       where: {
-        assignedToId: staffId,
-        status: { in: ["ASSIGNED", "IN_PROGRESS"] },
+        assignedToId: userId,
+        status: { in: [...activeStatuses] },
       },
       _count: { _all: true },
     }),
 
-    // C) My resolved last 7 days (more accurate via status history)
-    prisma.reportStatusHistory.count({
+    prisma.report.count({
       where: {
-        changedBy: staffId,
-        newStatus: "RESOLVED",
-        createdAt: { gte: sevenDaysAgo },
+        assignedToId: userId,
+        status: { in: [...activeStatuses] },
+        assignedAt: { lte: slaCutoff },
       },
     }),
 
-    // D) Unassigned VERIFIED preview (oldest first)
-    prisma.report.findMany({
+    prisma.reportStatusHistory.count({
       where: {
-        status: "VERIFIED",
-        assignedToId: null,
+        changedBy: userId,
+        newStatus: "RESOLVED",
+        createdAt: { gte: last7DaysStart },
       },
+    }),
+
+    prisma.report.findMany({
+      where: { status: "VERIFIED", assignedToId: null },
       orderBy: { createdAt: "asc" },
-      take: 8,
+      take: 12,
       select: {
         id: true,
         title: true,
@@ -82,49 +93,65 @@ export const getStaffDashboardService = async (staffId: string): Promise<StaffDa
         createdAt: true,
         reporter: { select: { id: true, name: true } },
         photos: {
-          orderBy: { createdAt: "asc" },
           take: 1,
+          orderBy: { createdAt: "asc" },
           select: { id: true, url: true, createdAt: true },
         },
       },
     }),
 
-    // E) My active reports (ASSIGNED/IN_PROGRESS)
     prisma.report.findMany({
       where: {
-        assignedToId: staffId,
-        status: { in: ["ASSIGNED", "IN_PROGRESS"] },
+        assignedToId: userId,
+        status: { in: [...activeStatuses] },
       },
-      orderBy: [{ status: "asc" }, { assignedAt: "desc" }], // optional ordering
-      take: 10,
+      orderBy: [{ assignedAt: "asc" }, { createdAt: "asc" }],
+      take: 15,
       select: {
         id: true,
         title: true,
         category: true,
         status: true,
+        createdAt: true,
         assignedAt: true,
-        updatedAt: true,
         reporter: { select: { id: true, name: true } },
         photos: {
-          orderBy: { createdAt: "asc" },
           take: 1,
+          orderBy: { createdAt: "asc" },
           select: { id: true, url: true, createdAt: true },
         },
       },
     }),
   ]);
 
-  const counts = { ASSIGNED: 0, IN_PROGRESS: 0 };
-  for (const row of myAssignedGrouped) {
-    if (row.status === "ASSIGNED") counts.ASSIGNED = row._count._all;
-    if (row.status === "IN_PROGRESS") counts.IN_PROGRESS = row._count._all;
+  const unassignedVerifiedByCategory: CountMap = {};
+  for (const row of unassignedVerifiedByCategoryRows) {
+    unassignedVerifiedByCategory[String(row.category)] = row._count._all;
   }
 
+  const myAssignedCounts: CountMap = { ASSIGNED: 0, IN_PROGRESS: 0 };
+  for (const row of myAssignedCountsRows) {
+    myAssignedCounts[String(row.status)] = row._count._all;
+  }
+
+  const myActiveCount =
+    (myAssignedCounts.ASSIGNED ?? 0) + (myAssignedCounts.IN_PROGRESS ?? 0);
+
   return {
+    generatedAt: now.toISOString(),
+
     unassignedVerifiedCount,
-    myAssignedCounts: counts,
+    myAssignedCounts,
     myResolvedLast7Days,
     unassignedVerifiedPreview,
     myActiveReports,
+
+    // added (simple but more complete)
+    unassignedVerifiedOverdue48hCount,
+    unassignedVerifiedOldestCreatedAt: unassignedVerifiedOldestAgg._min.createdAt,
+    unassignedVerifiedByCategory,
+
+    myActiveCount,
+    myOverdue48hCount,
   };
-};
+}
