@@ -21,6 +21,7 @@ import ReportDetailPage from "../../pages/ReportDetailsPage";
 import UnauthorizedPage from "../../pages/UnauthorizedPage";
 import NotFoundPage from "../../pages/NotFoundPage";
 import HomeRedirect from "../../pages/HomeRedirect";
+import StaffDashboardPage from "../../pages/StaffDashboardPage";
 
 import TermsPage from "../../pages/legal/TermsPage";
 import PrivacyPage from "../../pages/legal/PrivacyPage";
@@ -31,13 +32,13 @@ const PERMS = {
   reportReadOwn: ["report:read:own"],
   verificationQueue: ["verification:queue:read"],
   staffQueue: ["report:staff_queue:read"],
+  staffDashboard: ["report:staff_queue:read"],
   adminUsers: ["user:read", "user:update_role", "user:update_status"],
   adminAudit: ["audit:read"],
   reportDetailRead: ["report:read", "report:read:own", "report:feed:read"],
 };
 
 const router = createBrowserRouter([
-  // Public pages (always accessible)
   {
     element: <PublicLayout />,
     children: [
@@ -82,6 +83,10 @@ const router = createBrowserRouter([
           {
             element: <RequirePermissions anyOf={PERMS.adminUsers} />,
             children: [{ path: ROUTES.adminUsers, element: <UsersPage /> }],
+          },
+          {
+            element: <RequirePermissions anyOf={PERMS.staffDashboard} />,
+            children: [{ path: ROUTES.staffDashboard, element: <StaffDashboardPage /> }],
           },
           {
             element: <RequirePermissions anyOf={PERMS.reportDetailRead} />,

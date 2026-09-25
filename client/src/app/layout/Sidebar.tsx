@@ -32,6 +32,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Verification Queue", to: ROUTES.validatorQueue, anyOf: ["verification:queue:read"] },
       { label: "Staff Queue", to: ROUTES.staffQueue, anyOf: ["report:staff_queue:read"] },
+      { label: "Staff Dashboard", to: ROUTES.staffDashboard, anyOf: ["report:staff_queue:read"] },
     ],
   },
   {
