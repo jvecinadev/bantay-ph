@@ -59,6 +59,9 @@ const NewReportPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [photoFiles]);
 
+  const canCapture =
+    typeof navigator !== "undefined" && navigator.maxTouchPoints > 0;
+
   const validateAndSetPhotos = (files: FileList | null) => {
     setPhotoError(null);
     if (!files) return;
@@ -362,30 +365,63 @@ const NewReportPage = () => {
               ) : null}
 
               {photoFiles.length < MAX_PHOTOS ? (
-                <label
-                  className={`mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border-strong bg-surface-sunken/50 px-4 py-6 text-sm font-medium text-text-secondary transition-colors hover:border-primary hover:bg-primary-light/30 hover:text-primary ${
-                    isSubmitting ? "pointer-events-none opacity-50" : ""
-                  }`}
+                <div
+                  className={
+                    canCapture
+                      ? "mt-4 grid grid-cols-2 gap-2.5 sm:gap-3"
+                      : "mt-4"
+                  }
                 >
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface shadow-card">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                      <line x1="12" y1="5" x2="12" y2="19" />
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                  </span>
-                  {previews.length > 0 ? "Add more" : "Choose photos"}
-                  <input
-                    className="sr-only"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    multiple
-                    onChange={(e) => {
-                      validateAndSetPhotos(e.target.files);
-                      e.currentTarget.value = "";
-                    }}
-                    disabled={isSubmitting}
-                  />
-                </label>
+                  {canCapture ? (
+                    <label
+                      className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border-strong bg-surface-sunken/50 px-4 py-5 text-sm font-medium text-text-secondary transition-colors hover:border-primary hover:bg-primary-light/30 hover:text-primary ${
+                        isSubmitting ? "pointer-events-none opacity-50" : ""
+                      }`}
+                    >
+                      <span className="text-[11px] font-semibold uppercase tracking-wider">
+                        Camera
+                      </span>
+                      <span className="text-xs">
+                        {previews.length > 0 ? "Take another" : "Take photo"}
+                      </span>
+                      <input
+                        className="sr-only"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        capture="environment"
+                        onChange={(e) => {
+                          validateAndSetPhotos(e.target.files);
+                          e.currentTarget.value = "";
+                        }}
+                        disabled={isSubmitting}
+                      />
+                    </label>
+                  ) : null}
+
+                  <label
+                    className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border-strong bg-surface-sunken/50 px-4 py-5 text-sm font-medium text-text-secondary transition-colors hover:border-primary hover:bg-primary-light/30 hover:text-primary ${
+                      isSubmitting ? "pointer-events-none opacity-50" : ""
+                    }`}
+                  >
+                    <span className="text-[11px] font-semibold uppercase tracking-wider">
+                      Gallery
+                    </span>
+                    <span className="text-xs">
+                      {previews.length > 0 ? "Add more" : "Choose photo"}
+                    </span>
+                    <input
+                      className="sr-only"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      multiple
+                      onChange={(e) => {
+                        validateAndSetPhotos(e.target.files);
+                        e.currentTarget.value = "";
+                      }}
+                      disabled={isSubmitting}
+                    />
+                  </label>
+                </div>
               ) : null}
             </div>
 
