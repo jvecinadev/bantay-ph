@@ -38,7 +38,6 @@ const closeRing = (coords: [number, number][]) => {
   return [...coords, first];
 };
 
-// Ray-casting point-in-polygon (using lng/lat plane)
 const isPointInPolygon = (point: { lng: number; lat: number }, polygonLngLat: [number, number][]) => {
   let inside = false;
 
@@ -62,11 +61,9 @@ const FitAndLockToBounds = ({ bounds }: { bounds: LatLngBounds }) => {
   const map = useMap();
 
   useEffect(() => {
-    // Fit nicely on mobile/desktop with a comfortable padding
     const PAD = L.point(24, 24);
     map.fitBounds(bounds, { padding: [24, 24] });
 
-    // Prevent zooming out beyond this view (so users don't see other places)
     const z = map.getBoundsZoom(bounds, false, PAD);
     map.setMinZoom(z);
   }, [map, bounds]);
@@ -75,7 +72,6 @@ const FitAndLockToBounds = ({ bounds }: { bounds: LatLngBounds }) => {
 };
 
 const getOuterRingFromBounds = (bounds: LatLngBounds): LatLngLiteral[] => {
-  // Pad a lot so it covers the full viewport even if user zooms in/out slightly.
   const padded = bounds.pad(2);
   const sw = padded.getSouthWest();
   const nw = padded.getNorthWest();
@@ -101,7 +97,6 @@ const OutsideMask = ({
 
   return (
     <Polygon
-      // Holes: [outerRing, innerRing]
       positions={[outerRing, barangayPolygon]}
       pathOptions={{
         stroke: false,
@@ -130,7 +125,6 @@ const ClickToSetMarker = ({
   return null;
 };
 
-// Custom pin icon — uses the primary token so it adapts to light/dark theme.
 const PIN_ICON = L.divIcon({
   className: "bantay-pin",
   html: `
@@ -159,7 +153,6 @@ const LeafletPicker = ({ value, onChange }: Props) => {
   const bounds = useMemo(() => L.latLngBounds(polygonLatLng), [polygonLatLng]);
   const [geoTried, setGeoTried] = useState(false);
 
-  // Optional: if user allows location and it’s inside the barangay, auto-set marker there.
   useEffect(() => {
     if (geoTried) return;
     setGeoTried(true);
@@ -173,74 +166,72 @@ const LeafletPicker = ({ value, onChange }: Props) => {
         if (!value) onChange(next);
       },
       () => {
-        // ignore
       },
       { enableHighAccuracy: true, timeout: 8000 },
     );
   }, [geoTried, onChange, polygonLngLat, value]);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border shadow-card">
-      <div className="pointer-events-none absolute left-1/2 top-3 z-500 -translate-x-1/2 whitespace-nowrap rounded-full border border-border/60 bg-surface/95 px-3.5 py-1.5 text-xs font-medium text-text-primary shadow-card backdrop-blur-sm">
-        {value ? "Drag the pin to adjust" : "Tap the map to pin the location"}
-      </div>
+    <div className="relative">
+      <div className="relative z-0 isolate overflow-hidden rounded-xl border border-border bg-surface-sunken">
+        <MapContainer
+          className="h-72 w-full sm:h-80"
+          bounds={bounds}
+          maxBounds={bounds}
+          maxBoundsViscosity={1}
+          maxZoom={19}
+          scrollWheelZoom={false}
+          doubleClickZoom={false}
+          zoomControl={false}
+        >
+          <TileLayer
+            attribution="&copy; OpenStreetMap contributors"
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            noWrap
+          />
 
-      <MapContainer
-        className="h-80 w-full sm:h-96"
-        bounds={bounds}
-        maxBounds={bounds}
-        maxBoundsViscosity={1}
-        maxZoom={19}
-        scrollWheelZoom={false}
-        doubleClickZoom={false}
-        zoomControl
-      >
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          noWrap
-        />
+          <FitAndLockToBounds bounds={bounds} />
 
-        <FitAndLockToBounds bounds={bounds} />
+          <OutsideMask bounds={bounds} barangayPolygon={polygonLatLng} />
 
-        {/* Dim everything outside the barangay */}
-        <OutsideMask bounds={bounds} barangayPolygon={polygonLatLng} />
-
-        {/* Boundary + subtle fill inside barangay */}
-        <Polygon
-          positions={polygonLatLng}
-          pathOptions={{
-            color: "var(--color-primary)",
-            weight: 2,
-            fillColor: "var(--color-primary-light)",
-            fillOpacity: 0.18,
-          }}
-        />
-
-        <ClickToSetMarker polygonLngLat={polygonLngLat} onChange={onChange} />
-
-        {value ? (
-          <Marker
-            position={value}
-            draggable
-            icon={PIN_ICON}
-            eventHandlers={{
-              dragend: (e) => {
-                const p = e.target.getLatLng();
-                const next = { lat: p.lat, lng: p.lng };
-
-                if (!isPointInPolygon({ lat: next.lat, lng: next.lng }, polygonLngLat)) {
-                  // reject drag outside boundary (snap back)
-                  onChange(value);
-                  return;
-                }
-
-                onChange(next);
-              },
+          <Polygon
+            positions={polygonLatLng}
+            pathOptions={{
+              color: "var(--color-primary)",
+              weight: 1.5,
+              fillColor: "var(--color-primary-light)",
+              fillOpacity: 0.2,
             }}
           />
-        ) : null}
-      </MapContainer>
+
+          <ClickToSetMarker polygonLngLat={polygonLngLat} onChange={onChange} />
+
+          {value ? (
+            <Marker
+              position={value}
+              draggable
+              icon={PIN_ICON}
+              eventHandlers={{
+                dragend: (e) => {
+                  const p = e.target.getLatLng();
+                  const next = { lat: p.lat, lng: p.lng };
+
+                  if (!isPointInPolygon({ lat: next.lat, lng: next.lng }, polygonLngLat)) {
+                    onChange(value);
+                    return;
+                  }
+
+                  onChange(next);
+                },
+              }}
+            />
+          ) : null}
+        </MapContainer>
+
+        <div className="pointer-events-none absolute left-1/2 top-3 z-10 -translate-x-1/2 whitespace-nowrap rounded-full border border-border/60 bg-surface/95 px-3 py-1 text-[11px] font-medium text-text-primary shadow-card backdrop-blur-sm">
+          {value ? "Drag pin to adjust" : "Tap map to place pin"}
+        </div>
+      </div>
     </div>
   );
 };
