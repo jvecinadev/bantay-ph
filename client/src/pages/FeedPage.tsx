@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import useFeedReportsQuery from "../features/reports/hooks/useFeedReportsQuery";
 import { CATEGORY_OPTIONS } from "../features/reports/constants";
 import type { ReportCategory } from "../features/reports/types";
@@ -14,7 +15,7 @@ const FeedPage = () => {
 
   const chipClass = (active: boolean) =>
     [
-      "inline-flex shrink-0 items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap",
+      "inline-flex shrink-0 items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20",
       active
         ? "border-primary bg-primary text-surface"
         : "border-border-strong bg-surface text-text-secondary hover:border-text-secondary/40 hover:text-text-primary",
@@ -22,7 +23,7 @@ const FeedPage = () => {
 
   return (
     <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] xl:gap-8">
-      <div className="min-w-0">
+      <div className="min-w-0 pb-24 sm:pb-0">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <h1 className="text-2xl font-bold tracking-tight text-text-primary">
@@ -33,16 +34,16 @@ const FeedPage = () => {
             </p>
           </div>
 
-          <a
-            href="/reports/new"
+          <Link
+            to="/reports/new"
             className="hidden shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-sm font-semibold text-surface shadow-card transition-all hover:bg-primary-dark hover:shadow-card-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 sm:inline-flex"
           >
             <span className="text-base leading-none">+</span>
             New report
-          </a>
+          </Link>
         </div>
 
-        <div className="-mx-4 mt-5 overflow-x-auto px-4 pb-1 scrollbar-none [&::-webkit-scrollbar]:hidden sm:mx-0 sm:overflow-visible sm:px-0">
+        <div className="-mx-4 mt-5 overflow-x-auto px-4 pb-1 [&::-webkit-scrollbar]:hidden sm:mx-0 sm:overflow-visible sm:px-0">
           <div className="flex gap-2 sm:flex-wrap">
             <button
               type="button"
@@ -140,13 +141,13 @@ const FeedPage = () => {
           </div>
         ) : null}
 
-        <a
-          href="/reports/new"
+        <Link
+          to="/reports/new"
           aria-label="New report"
           className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-2xl font-light leading-none text-surface shadow-popover transition-transform hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/30 sm:hidden"
         >
           +
-        </a>
+        </Link>
       </div>
 
       <aside className="hidden xl:block">

@@ -7,6 +7,10 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './app/App.tsx'
 
+const stored = localStorage.getItem("theme");
+const shouldBeDark = stored === "dark";
+document.documentElement.classList.toggle("dark", shouldBeDark);
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

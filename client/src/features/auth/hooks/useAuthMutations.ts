@@ -11,9 +11,10 @@ export const useLoginMutation = () => {
     mutationFn: async (body) => {
       await authApi.login(body);
 
-
-      await qc.invalidateQueries({ queryKey: ["auth", "me"] });
-      await qc.refetchQueries({ queryKey: ["auth", "me"], type: "all" });
+      await qc.fetchQuery({
+        queryKey: ["auth", "me"],
+        queryFn: () => authApi.me(), 
+      });
     },
   });
 };
@@ -38,8 +39,13 @@ export const useLogoutMutation = () => {
   return useMutation<void, ApiError, void>({
     mutationFn: async () => {
       await authApi.logout();
+    },
+    onSuccess: async () => {
       clearAuth();
-      qc.removeQueries({ queryKey: ["auth", "me"] });
+
+      await qc.cancelQueries({ queryKey: ["auth", "me"] });
+      qc.setQueryData(["auth", "me"], null);
+      await qc.invalidateQueries({ queryKey: ["auth", "me"] });
     },
   });
 };

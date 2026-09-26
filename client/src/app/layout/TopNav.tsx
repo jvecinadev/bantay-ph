@@ -1,35 +1,42 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  LuMoon,
+  LuSun,
+  LuLogOut,
+  LuChevronDown,
+} from "react-icons/lu";
 import { ROUTES } from "../router/routes";
 import { getInitials } from "../../lib/helper/getInitials";
 import { useLogoutMutation } from "../../features/auth/hooks/useAuthMutations";
 import useAuthStore from "../../stores/authStore";
-import Logo from '../../assets/logo.png';
+import Switch from "../../shared/ui/Switch";
+import Brand from "../../shared/ui/Brand";
+import HamburgerButton from "../../shared/ui/HamburgerButton";
+import MenuRow from "../../shared/ui/MenuRow";
+
+const THEME_KEY = "bantay-theme";
 
 type TopNavProps = {
   onOpenSidebar: () => void;
 };
 
-const THEME_KEY = "bantay-theme";
-
-const TopNav = ({ onOpenSidebar }: TopNavProps) => {
+const AccountMenu = () => {
   const navigate = useNavigate();
-  const logoutMutation = useLogoutMutation();
   const user = useAuthStore((s) => s.user);
+  const logoutMutation = useLogoutMutation();
 
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [isDark, setIsDark] = useState(() => {
     if (typeof document === "undefined") return false;
     return document.documentElement.classList.contains("dark");
   });
-
-  const menuRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(THEME_KEY);
       const shouldBeDark = stored === "dark";
-
       document.documentElement.classList.toggle("dark", shouldBeDark);
       setIsDark(shouldBeDark);
     } catch {
@@ -37,24 +44,22 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
   }, []);
 
   useEffect(() => {
-    if (!menuOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [menuOpen]);
+    if (!open) return;
 
-  useEffect(() => {
-    if (!menuOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [menuOpen]);
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [open]);
 
   const toggleTheme = () => {
     const next = !isDark;
@@ -68,8 +73,7 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
 
   const handleLogout = async () => {
     logoutMutation.reset();
-    setMenuOpen(false);
-
+    setOpen(false);
     try {
       await logoutMutation.mutateAsync();
       navigate(ROUTES.login, { replace: true });
@@ -82,185 +86,100 @@ const TopNav = ({ onOpenSidebar }: TopNavProps) => {
   const displayEmail = user?.email ?? "";
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-border bg-surface/95 backdrop-blur-sm">
-      <div className="flex h-14 w-full items-center gap-3 px-3 sm:h-16 sm:gap-4 sm:px-6">
-        <button
-          type="button"
-          onClick={onOpenSidebar}
-          aria-label="Open sidebar"
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 lg:hidden"
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className={[
+          "inline-flex items-center gap-2 rounded-full border py-1 pl-1 pr-2 transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20",
+          open
+            ? "border-primary/40 bg-primary-light/60"
+            : "border-border bg-surface hover:border-border-strong hover:bg-surface-sunken",
+        ].join(" ")}
+      >
+        <span
+          className={[
+            "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-colors sm:h-8 sm:w-8 sm:text-xs",
+            open ? "bg-primary text-surface" : "bg-primary-light text-primary",
+          ].join(" ")}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-        </button>
+          {initials}
+        </span>
+        <span className="hidden max-w-36 truncate text-sm font-semibold tracking-tight text-text-primary md:inline">
+          {displayName}
+        </span>
+        <LuChevronDown
+          size={14}
+          strokeWidth={2.5}
+          className={[
+            "shrink-0 transition-transform duration-200",
+            open ? "rotate-180 text-primary" : "text-text-secondary",
+          ].join(" ")}
+        />
+      </button>
 
-        <div className="flex min-w-0 items-center gap-2.5">
-          <img
-            src={Logo}
-            alt="Bantay PH"
-            draggable={false}
-            className="h-8 w-8 shrink-0 object-contain sm:h-9 sm:w-9"
-          />
-
-          <div className="min-w-0 leading-tight">
-            <div className="truncate text-sm font-bold tracking-tight text-text-primary">
-              Bantay PH
-            </div>
-            <div className="hidden truncate text-[11px] text-text-secondary sm:block">
-              Community Issue Reporting
-            </div>
+      {open ? (
+        <div
+          role="menu"
+          className="absolute right-0 top-[calc(100%+10px)] z-50 w-72 origin-top-right overflow-hidden rounded-2xl border border-border bg-surface shadow-popover"
+        >
+          <div className="flex h-1 w-full">
+            <span className="flex-1 bg-primary" />
+            <span className="flex-1 bg-accent" />
           </div>
-        </div>
 
-        <div className="flex-1" />
-
-        <div className="relative" ref={menuRef}>
-          <button
-            type="button"
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            className={[
-              "group inline-flex items-center gap-2 rounded-full border py-1 pl-1 pr-2 transition-all duration-150 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20",
-              menuOpen
-                ? "border-primary/40 bg-primary-light/60"
-                : "border-border bg-surface hover:border-border-strong hover:bg-surface-sunken",
-            ].join(" ")}
-          >
-            <span
-              className={[
-                "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-colors sm:h-8 sm:w-8 sm:text-xs",
-                menuOpen
-                  ? "bg-primary text-surface"
-                  : "bg-primary-light text-primary",
-              ].join(" ")}
-            >
+          <div className="flex items-center gap-3 px-4 py-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-bold text-primary">
               {initials}
             </span>
-
-            <span className="hidden max-w-36 truncate text-sm font-semibold tracking-tight text-text-primary md:inline">
-              {displayName}
-            </span>
-
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={[
-                "shrink-0 transition-transform duration-200",
-                menuOpen ? "rotate-180 text-primary" : "text-text-secondary",
-              ].join(" ")}
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
-
-          {menuOpen ? (
-            <div
-              role="menu"
-              className="absolute right-0 top-[calc(100%+10px)] z-50 w-68 origin-top-right overflow-hidden rounded-2xl border border-border bg-surface shadow-popover"
-            >
-              <div className="flex h-1 w-full">
-                <span className="flex-1 bg-primary" />
-                <span className="flex-1 bg-accent" />
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-semibold tracking-tight text-text-primary">
+                {displayName}
               </div>
-
-              <div className="flex items-center gap-3 px-4 py-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-bold text-primary">
-                  {initials}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold tracking-tight text-text-primary">
-                    {displayName}
-                  </div>
-                  {displayEmail ? (
-                    <div className="mt-0.5 truncate text-xs text-text-secondary">
-                      {displayEmail}
-                    </div>
-                  ) : null}
+              {displayEmail ? (
+                <div className="mt-0.5 truncate text-xs text-text-secondary">
+                  {displayEmail}
                 </div>
-              </div>
-
-              <div className="h-px bg-border" />
-
-              <button
-                type="button"
-                role="menuitem"
-                onClick={toggleTheme}
-                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-sunken focus:outline-none focus-visible:bg-surface-sunken"
-              >
-                <span className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-sunken text-text-secondary">
-                    {isDark ? (
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                      </svg>
-                    ) : (
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="4" />
-                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-                      </svg>
-                    )}
-                  </span>
-                  <span className="flex min-w-0 flex-col">
-                    <span className="truncate text-sm font-medium text-text-primary">
-                      {isDark ? "Dark mode" : "Light mode"}
-                    </span>
-                    <span className="truncate text-xs text-text-secondary">
-                      Tap to switch appearance
-                    </span>
-                  </span>
-                </span>
-
-                <span
-                  className={[
-                    "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200",
-                    isDark ? "bg-primary" : "bg-border-strong",
-                  ].join(" ")}
-                >
-                  <span
-                    className={[
-                      "inline-block h-4 w-4 rounded-full bg-surface shadow-sm transition-transform duration-200",
-                      isDark ? "translate-x-4.5" : "translate-x-0.5",
-                    ].join(" ")}
-                  />
-                </span>
-              </button>
-
-              <div className="h-px bg-border" />
-
-              <button
-                type="button"
-                role="menuitem"
-                onClick={handleLogout}
-                disabled={logoutMutation.isPending}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-danger-light focus:outline-none focus-visible:bg-danger-light disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-danger-light text-danger">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
-                  </svg>
-                </span>
-                <span className="text-sm font-medium text-danger">
-                  {logoutMutation.isPending ? "Logging out…" : "Log out"}
-                </span>
-              </button>
+              ) : null}
             </div>
-          ) : null}
+          </div>
+
+          <div className="h-px bg-border" />
+
+          <div className="p-1.5">
+            <MenuRow
+              icon={isDark ? <LuMoon size={15} /> : <LuSun size={15} />}
+              label={isDark ? "Dark mode" : "Light mode"}
+              description="Switch appearance"
+              trailing={<Switch checked={isDark} />}
+              onClick={toggleTheme}
+            />
+
+            <MenuRow
+              icon={<LuLogOut size={15} />}
+              label={logoutMutation.isPending ? "Logging out…" : "Log out"}
+              tone="danger"
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
+            />
+          </div>
         </div>
-      </div>
-    </header>
+      ) : null}
+    </div>
   );
 };
+
+const TopNav = ({ onOpenSidebar }: TopNavProps) => (
+  <header className="sticky top-0 z-30 w-full border-b border-border bg-surface/95 backdrop-blur-sm">
+    <div className="flex h-14 w-full items-center gap-3 px-3 sm:h-16 sm:gap-4 sm:px-6">
+      <HamburgerButton onClick={onOpenSidebar} />
+      <Brand />
+      <div className="flex-1" />
+      <AccountMenu />
+    </div>
+  </header>
+);
 
 export default TopNav;
