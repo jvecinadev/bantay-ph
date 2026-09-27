@@ -86,7 +86,7 @@ export const getCurrentUser = asyncHandler ( async (
                 },
                 permissions: user.permissions,
                 profile: {
-                    avatarUrl: user.profile?.avatarUrl
+                    avatarUrl: user.profile.avatarUrl
                 }
             }
         }
