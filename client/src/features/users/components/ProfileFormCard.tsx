@@ -29,7 +29,6 @@ const ProfileFormCard = ({ me, isSaving, onSave, fieldErrors }: Props) => {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   useEffect(() => {
-    // hydrate once (prevents overwriting user edits on refetch)
     if (hydratedRef.current) return;
 
     setName(me.name ?? "");
