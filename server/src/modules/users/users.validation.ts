@@ -61,5 +61,14 @@ export const patchMySettingsSchema = z.object({
     .strict(),
 });
 
+export const getUserPublicProfileSchema = z.object({
+  params: z
+    .object({
+      id: z.string().trim().uuid("Invalid user id"),
+    })
+    .strict(),
+});
+
+export type GetUserPublicProfileParams = z.infer<typeof getUserPublicProfileSchema>["params"];
 export type PatchMyProfileBody = z.infer<typeof patchMyProfileSchema>["body"];
 export type PatchMySettingsBody = z.infer<typeof patchMySettingsSchema>["body"];

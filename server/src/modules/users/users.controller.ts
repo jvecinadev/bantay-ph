@@ -5,8 +5,9 @@ import { asyncHandler } from "../../common/errors/asyncHandler";
 import { getMyProfileService, patchMyProfileService } from "./users.services";
 import { getMySettingsService, patchMySettingsService } from "./userSettings.services";
 import { uploadMyAvatarService } from "./userAvatar.services";
+import { getUserPublicProfileService } from "./userPublicProfile.services";
 
-import type { PatchMyProfileBody, PatchMySettingsBody } from "./users.validation";
+import type { PatchMyProfileBody, PatchMySettingsBody, GetUserPublicProfileParams } from "./users.validation";
 
 export const getMe = asyncHandler(async (req: Request, res: Response) => {
   const data = await getMyProfileService(req.auth!.id);
@@ -74,5 +75,20 @@ export const patchMySettings = asyncHandler(async (req: Request, res: Response) 
   return res.status(200).json({
     message: "Settings updated",
     data,
+  });
+});
+
+export const getUserPublicProfile = asyncHandler(async (req: Request, res: Response) => {
+  const { params } = res.locals.validated as { params: GetUserPublicProfileParams };
+
+  const user = await getUserPublicProfileService(params.id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.status(200).json({
+    message: "User public profile",
+    data: { user },
   });
 });
