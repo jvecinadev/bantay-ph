@@ -23,6 +23,7 @@ import NotFoundPage from "../../pages/NotFoundPage";
 import HomeRedirect from "../../pages/HomeRedirect";
 import StaffDashboardPage from "../../pages/StaffDashboardPage";
 import AdminDashboardPage from "../../pages/AdminDashboardPage";
+import RegisterProfilePage from "../../pages/users/ProfilePage";
 
 import TermsPage from "../../pages/legal/TermsPage";
 import PrivacyPage from "../../pages/legal/PrivacyPage";
@@ -101,6 +102,10 @@ const router = createBrowserRouter([
           {
             element: <RequirePermissions anyOf={PERMS.adminDashboard} />,
             children: [{ path: ROUTES.adminDashboard, element: <AdminDashboardPage /> }],
+          },
+          {
+            element: <RequirePermissions anyOf={PERMS.feedRead} />,
+            children: [{ path: ROUTES.profilePage, element: <RegisterProfilePage /> }],
           },
 
           { path: ROUTES.unauthorized, element: <UnauthorizedPage /> },
