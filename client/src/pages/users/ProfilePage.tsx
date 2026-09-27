@@ -23,7 +23,7 @@ const RegisterProfilePage = () => {
 
   if (meQuery.status === "error") {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
           <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
             !
@@ -34,7 +34,7 @@ const RegisterProfilePage = () => {
         <button
           type="button"
           onClick={() => meQuery.refetch()}
-          className="inline-flex items-center justify-center rounded-xl border border-border-strong bg-surface px-4 py-2 text-sm font-semibold text-text-primary hover:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+          className="inline-flex items-center justify-center rounded-lg border border-border-strong bg-surface px-3.5 py-2 text-sm font-semibold text-text-primary transition-colors hover:border-primary hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
         >
           Retry
         </button>
@@ -46,36 +46,22 @@ const RegisterProfilePage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="rounded-2xl border border-border bg-surface p-5 shadow-card sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-              Profile
-            </h1>
-            <div className="mt-1 text-sm text-text-secondary">
-              Manage your personal information and avatar.
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => meQuery.refetch()}
-            disabled={meQuery.isFetching}
-            className="inline-flex items-center justify-center rounded-xl border border-border-strong bg-surface px-4 py-2 text-sm font-semibold text-text-primary hover:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {meQuery.isFetching ? "Refreshing…" : "Refresh"}
-          </button>
-        </div>
-      </div>
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight text-text-primary">
+          Profile
+        </h1>
+        <p className="mt-1.5 text-sm text-text-secondary">
+          Manage your personal information and avatar.
+        </p>
+      </header>
 
       {savedBanner ? (
-        <div className="rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-secondary shadow-card">
+        <div className="flex items-center gap-2.5 rounded-xl border border-success/30 bg-success-light px-3.5 py-2.5 text-xs font-medium text-success">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-success" />
           {savedBanner}
         </div>
       ) : null}
 
-      {/* Layout */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6">
           <AvatarCard
@@ -92,8 +78,7 @@ const RegisterProfilePage = () => {
           <AccountInfoCard me={me} />
         </div>
 
-        <div className="lg:col-span-2 space-y-6">
-          {/* Only show a banner for non-validation errors */}
+        <div className="space-y-6 lg:col-span-2">
           {patchMutation.error && Object.keys(fieldErrors).length === 0 ? (
             <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
               <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
