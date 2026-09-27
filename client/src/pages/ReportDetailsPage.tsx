@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
+import { getInitials } from "../lib/helper/getInitials";
 
 import useReportDetailQuery from "../features/reports/hooks/useReportDetailQuery";
 import useReportCommentsQuery from "../features/reports/hooks/useReportCommentsQuery";
@@ -107,23 +108,7 @@ const ReportDetailPage = () => {
   if (!report) {
     return (
       <div className="rounded-2xl border border-dashed border-border-strong bg-surface-sunken px-6 py-12 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-surface shadow-card">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-text-secondary"
-          >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-          </svg>
-        </div>
-        <div className="mt-4 text-sm font-semibold text-text-primary">
+        <div className="text-sm font-semibold text-text-primary">
           Report not found
         </div>
         <div className="mt-1 text-xs text-text-secondary">
@@ -132,6 +117,9 @@ const ReportDetailPage = () => {
       </div>
     );
   }
+
+  const reporterPhoto = report.reporter?.profile?.avatarUrl ?? null;
+  const reporterInitials = getInitials(report.reporter?.name);
 
   return (
     <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:gap-8">
@@ -142,19 +130,9 @@ const ReportDetailPage = () => {
             onClick={() => navigate(-1)}
             className="group -ml-1.5 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-sm font-medium text-text-secondary transition-colors hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="transition-transform group-hover:-translate-x-0.5"
-            >
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
+            <span className="transition-transform group-hover:-translate-x-0.5">
+              ←
+            </span>
             Back
           </button>
 
@@ -173,21 +151,23 @@ const ReportDetailPage = () => {
           </h1>
 
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary">
-            <span className="inline-flex items-center gap-1.5">
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="shrink-0 opacity-70"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
+            <span className="inline-flex items-center gap-2">
+              {reporterPhoto ? (
+                <span className="block h-6 w-6 shrink-0 overflow-hidden rounded-full border border-border bg-surface-sunken">
+                  <img
+                    src={reporterPhoto}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    draggable={false}
+                  />
+                </span>
+              ) : (
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-light text-[10px] font-bold text-primary">
+                  {reporterInitials}
+                </span>
+              )}
               <span className="font-medium text-text-primary">
                 {report.reporter?.name}
               </span>
@@ -233,22 +213,8 @@ const ReportDetailPage = () => {
                   href={openMapUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl border border-border-strong bg-surface px-3.5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-primary hover:bg-primary-light hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/10"
+                  className="mt-4 flex w-full items-center justify-center rounded-xl border border-border-strong bg-surface px-3.5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-primary hover:bg-primary-light hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/10"
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
                   Open in map
                 </a>
               ) : null}
@@ -277,21 +243,15 @@ const ReportDetailPage = () => {
         ) : null}
 
         {commentsQuery.isLoading ? (
-          <div className="space-y-3">
+          <div className="space-y-5 border-y border-border py-5">
             {[...Array(2)].map((_, i) => (
-              <div
-                key={i}
-                className="animate-pulse rounded-2xl border border-border bg-surface p-5 shadow-card"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-surface-sunken" />
-                  <div className="flex-1">
-                    <div className="h-3 w-24 rounded bg-surface-sunken" />
-                    <div className="mt-1.5 h-2.5 w-16 rounded bg-surface-sunken" />
-                  </div>
+              <div key={i} className="flex gap-3">
+                <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-surface-sunken" />
+                <div className="flex-1">
+                  <div className="h-3 w-32 animate-pulse rounded bg-surface-sunken" />
+                  <div className="mt-2 h-3 w-full animate-pulse rounded bg-surface-sunken" />
+                  <div className="mt-1.5 h-3 w-4/6 animate-pulse rounded bg-surface-sunken" />
                 </div>
-                <div className="mt-3 h-3 w-full rounded bg-surface-sunken" />
-                <div className="mt-2 h-3 w-4/6 rounded bg-surface-sunken" />
               </div>
             ))}
           </div>
@@ -340,18 +300,16 @@ const ReportDetailPage = () => {
           ) : null}
 
           {historyQuery.isLoading ? (
-            <div className="animate-pulse rounded-2xl border border-border bg-surface p-6 shadow-card">
-              <div className="space-y-5">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="flex gap-3">
-                    <div className="h-6 w-6 shrink-0 rounded-full bg-surface-sunken" />
-                    <div className="flex-1">
-                      <div className="h-3 w-32 rounded bg-surface-sunken" />
-                      <div className="mt-1.5 h-2.5 w-48 rounded bg-surface-sunken" />
-                    </div>
+            <div className="space-y-5 border-y border-border py-5">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex gap-3">
+                  <div className="h-6 w-6 shrink-0 animate-pulse rounded-full bg-surface-sunken" />
+                  <div className="flex-1">
+                    <div className="h-3 w-32 animate-pulse rounded bg-surface-sunken" />
+                    <div className="mt-1.5 h-2.5 w-48 animate-pulse rounded bg-surface-sunken" />
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           ) : (
             <HistoryTimeline items={historyQuery.data ?? []} />

@@ -31,6 +31,9 @@ export type ReportFeedItem = {
   reporter: {
     id: string;
     name: string;
+    profile: {
+      avatarUrl?: string
+    }
   };
   photos?: ReportPhoto[];
 };
@@ -76,6 +79,9 @@ export type ReportDetail = {
     id: string;
     name: string;
     email: string;
+    profile: {
+      avatarUrl?: string
+    }
   };
 
   assignedTo: null | {
@@ -96,6 +102,9 @@ export type ReportComment = {
     role: {
       name: "RESIDENT" | "VALIDATOR" | "BARANGAY_STAFF" | "ADMIN";
     };
+    profile: { 
+      avatarUrl: string;
+    }
   };
 };
 

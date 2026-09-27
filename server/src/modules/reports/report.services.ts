@@ -135,7 +135,7 @@ export const getReportByIdService = async (reportId: string, requester: Requeste
       assignedAt: true,
 
       reporter: {
-        select: { id: true, name: true, email: true },
+        select: { id: true, name: true, email: true, profile: { select: { avatarUrl: true }} },
       },
       assignedTo: {
         select: { id: true, name: true, email: true },

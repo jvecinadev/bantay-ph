@@ -115,6 +115,7 @@ const FeedPage = () => {
                 reporterName={r.reporter?.name ?? null}
                 category={r.category}
                 photos={(r.photos ?? []).map((p) => p.url)}
+                reporterPhoto={r.reporter?.profile?.avatarUrl}
               />
             ))
           ) : (
