@@ -102,6 +102,9 @@ export type ReportComment = {
     role: {
       name: "RESIDENT" | "VALIDATOR" | "BARANGAY_STAFF" | "ADMIN";
     };
+    profile: { 
+      avatarUrl: string;
+    }
   };
 };
 

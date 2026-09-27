@@ -5,7 +5,6 @@ type Props = {
   comments: ReportComment[];
 };
 
-
 const AVATAR_TINTS = [
   "bg-primary-light text-primary",
   "bg-accent-light text-accent",
@@ -37,15 +36,29 @@ const CommentList = ({ comments }: Props) => {
       {comments.map((c) => {
         const tint = getTint(c.user.name);
         const initials = getInitials(c.user.name);
+        const avatarUrl = c.user.profile?.avatarUrl ?? null;
 
         return (
           <article key={c.id} className="flex items-start gap-3 py-4">
-            <div
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${tint}`}
-              aria-hidden="true"
-            >
-              {initials}
-            </div>
+            {avatarUrl ? (
+              <span className="block h-8 w-8 shrink-0 overflow-hidden rounded-full border border-border bg-surface-sunken">
+                <img
+                  src={avatarUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
+              </span>
+            ) : (
+              <div
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${tint}`}
+                aria-hidden="true"
+              >
+                {initials}
+              </div>
+            )}
 
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs">

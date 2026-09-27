@@ -127,7 +127,7 @@ export const getReportHistoryService = async (args: { reportId: string; actor: A
       newStatus: true,
       remarks: true,
       createdAt: true,
-      author: { select: { id: true, name: true, role: { select: { name: true } }, user: { select: { id: true, name: true, profile: { select: { avatarUrl: true }} } }, } },
+      author: { select: { id: true, name: true, role: { select: { name: true } }, profile: { select: { avatarUrl: true }} } },
     },
   });
 };
