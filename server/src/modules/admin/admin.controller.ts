@@ -1,8 +1,8 @@
 
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../common/errors/asyncHandler";
-import type { UserStatus } from "@prisma/client";
-import { ListAuditLogsQuery, ListUsersQuery, UpdateUserRole, UpdateUserStatus } from "./admin.validation";
+import { getAdminUserProfileService } from "../admin/adminUserProfile.services";
+import { ListAuditLogsQuery, ListUsersQuery, UpdateUserRole, UpdateUserStatus, GetAdminUserProfileParams } from "./admin.validation";
 
 import {
   listUsersService,
@@ -71,5 +71,20 @@ export const listAuditLogs = asyncHandler(async (req: Request, res: Response) =>
   res.status(200).json({
     message: "Audit logs",
     data: result,
+  });
+});
+
+export const getAdminUserProfile = asyncHandler(async (req: Request, res: Response) => {
+  const { params } = res.locals.validated as { params: GetAdminUserProfileParams };
+
+  const user = await getAdminUserProfileService(params.id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.status(200).json({
+    message: "User private profile",
+    data: { user },
   });
 });
