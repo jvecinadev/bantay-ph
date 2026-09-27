@@ -134,7 +134,11 @@ export const getCurrentUserService = async (userId: string) => {
     status: user.status,
     role: { id: user.role.id, name: user.role.name },
     permissions,
-    profile: { avatarUrl: user.profile?.avatarUrl }
+    profile: { 
+        select: {
+          avatarUrl: true
+        }
+      }
   };
 };
 
