@@ -92,3 +92,4 @@ export const getUserPublicProfile = asyncHandler(async (req: Request, res: Respo
     data: { user },
   });
 });
+

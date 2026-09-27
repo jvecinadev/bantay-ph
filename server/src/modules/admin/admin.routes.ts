@@ -7,6 +7,7 @@ import { listAuditLogs, listUsers, updateUserRole, updateUserStatus } from "./ad
 import { validate } from "../../middleware/validateRequest.middleware";
 import { listAuditLogsSchema, listUserSchema, updateUserRoleSchema, updateUserStatusSchema } from "./admin.validation";
 
+
 const router = Router()
 
 router.use(requireAuth, requireActiveAccount)
@@ -14,5 +15,6 @@ router.get("/users", requirePermission("user:read"), validate(listUserSchema), l
 router.get("/audit-logs", requirePermission("audit:read"), validate(listAuditLogsSchema), listAuditLogs)
 router.patch("/users/:id/role", requirePermission("user:update_role"), validate(updateUserRoleSchema), updateUserRole)
 router.patch("/users/:id/status", requirePermission("user:update_status"), validate(updateUserStatusSchema), updateUserStatus)
+router.get("/:id/admin")
 
 export default router;

@@ -28,4 +28,5 @@ router.patch("/me/settings", validate(patchMySettingsSchema), patchMySettings);
 
 router.get("/:id/public", validate(getUserPublicProfileSchema), getUserPublicProfile)
 
+
 export default router;

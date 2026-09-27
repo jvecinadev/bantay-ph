@@ -56,6 +56,15 @@ export const listAuditLogsSchema = z.object({
     .strict(),
 });
 
+export const getAdminUserProfileSchema = z.object({
+  params: z
+    .object({
+      id: z.string().trim().uuid("Invalid user id"),
+    })
+    .strict(),
+});
+
+export type GetAdminUserProfileParams = z.infer<typeof getAdminUserProfileSchema>["params"];
 export type ListUsersQuery = z.infer<typeof listUserSchema>["query"]
 export type UpdateUserRole = z.infer<typeof updateUserRoleSchema>
 export type UpdateUserStatus = z.infer<typeof updateUserStatusSchema>
