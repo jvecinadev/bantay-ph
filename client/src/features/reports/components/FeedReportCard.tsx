@@ -8,6 +8,7 @@ type FeedReportCardProps = {
   createdAt: string;
   status: string;
   reporterName?: string;
+  reporterPhoto?: string | null;
   category?: string | null;
   photos?: string[];
 };
@@ -19,6 +20,7 @@ const FeedReportCard = ({
   createdAt,
   status,
   reporterName,
+  reporterPhoto,
   category,
   photos = [],
 }: FeedReportCardProps) => {
@@ -35,9 +37,22 @@ const FeedReportCard = ({
       >
         <div className="px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-5">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-[11px] font-bold text-primary">
-              {initials}
-            </span>
+            {reporterPhoto ? (
+              <span className="block h-9 w-9 shrink-0 overflow-hidden rounded-full border border-border bg-surface-sunken">
+                <img
+                  src={reporterPhoto}
+                  alt=""
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
+              </span>
+            ) : (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-[11px] font-bold text-primary">
+                {initials}
+              </span>
+            )}
 
             <div className="min-w-0 flex-1">
               <div className="flex min-w-0 items-baseline gap-1.5 text-xs">
