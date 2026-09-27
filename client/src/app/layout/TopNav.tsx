@@ -5,6 +5,7 @@ import {
   LuSun,
   LuLogOut,
   LuChevronDown,
+  LuUserRound,
 } from "react-icons/lu";
 import { ROUTES } from "../router/routes";
 import { getInitials } from "../../lib/helper/getInitials";
@@ -19,6 +20,40 @@ const THEME_KEY = "bantay-theme";
 
 type TopNavProps = {
   onOpenSidebar: () => void;
+};
+
+type AvatarProps = {
+  url: string | null | undefined;
+  initials: string;
+  size?: "sm" | "md";
+};
+
+const Avatar = ({ url, initials, size = "sm" }: AvatarProps) => {
+  const sizeClass =
+    size === "md"
+      ? "h-11 w-11 text-sm"
+      : "h-7 w-7 text-[11px] sm:h-8 sm:w-8 sm:text-xs";
+
+  if (url) {
+    return (
+      <span className={`block shrink-0 overflow-hidden rounded-full ${sizeClass}`}>
+        <img
+          src={url}
+          alt=""
+          className="h-full w-full object-cover"
+          draggable={false}
+        />
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={`flex shrink-0 items-center justify-center rounded-full bg-primary-light font-bold text-primary ${sizeClass}`}
+    >
+      {initials}
+    </span>
+  );
 };
 
 const AccountMenu = () => {
@@ -81,9 +116,15 @@ const AccountMenu = () => {
     }
   };
 
+  const handleProfile = () => {
+    setOpen(false);
+    navigate(ROUTES.profilePage);
+  };
+
   const initials = getInitials(user?.name);
   const displayName = user?.name ?? "Account";
   const displayEmail = user?.email ?? "";
+  const avatarUrl = user?.profile?.avatarUrl ?? null;
 
   return (
     <div className="relative" ref={ref}>
@@ -99,14 +140,7 @@ const AccountMenu = () => {
             : "border-border bg-surface hover:border-border-strong hover:bg-surface-sunken",
         ].join(" ")}
       >
-        <span
-          className={[
-            "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-colors sm:h-8 sm:w-8 sm:text-xs",
-            open ? "bg-primary text-surface" : "bg-primary-light text-primary",
-          ].join(" ")}
-        >
-          {initials}
-        </span>
+        <Avatar url={avatarUrl} initials={initials} />
         <span className="hidden max-w-36 truncate text-sm font-semibold tracking-tight text-text-primary md:inline">
           {displayName}
         </span>
@@ -131,9 +165,7 @@ const AccountMenu = () => {
           </div>
 
           <div className="flex items-center gap-3 px-4 py-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-light text-sm font-bold text-primary">
-              {initials}
-            </span>
+            <Avatar url={avatarUrl} initials={initials} size="md" />
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-semibold tracking-tight text-text-primary">
                 {displayName}
@@ -149,6 +181,13 @@ const AccountMenu = () => {
           <div className="h-px bg-border" />
 
           <div className="p-1.5">
+            <MenuRow
+              icon={<LuUserRound size={15} />}
+              label="Profile settings"
+              description="Manage your account"
+              onClick={handleProfile}
+            />
+
             <MenuRow
               icon={isDark ? <LuMoon size={15} /> : <LuSun size={15} />}
               label={isDark ? "Dark mode" : "Light mode"}
