@@ -1,7 +1,7 @@
 import { prisma } from "../../db/prisma";
 import { v2 as cloudinary } from "cloudinary";
 
-export async function uploadMyAvatarService(userId: string, file: Express.Multer.File) {
+export const uploadMyAvatarService = async (userId: string, file: Express.Multer.File) => {
   const folder = `bantayph/avatars/${userId}`;
   const publicId = "avatar";
 
