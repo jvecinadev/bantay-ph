@@ -3,6 +3,7 @@ import { HttpError } from "../../common/errors/httpErrors";
 import { hashPassword, comparePassword } from "../../common/auth/password";
 import { generateToken } from "../../common/auth/token";
 import { Prisma } from "@prisma/client";
+import { profile } from "node:console";
 
 const isUniqueConstraintError = (err: unknown) =>
   err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
@@ -112,6 +113,11 @@ export const getCurrentUserService = async (userId: string) => {
           },
         },
       },
+      profile: { 
+        select: {
+          avatarUrl: true
+        }
+      }
     },
   });
 
@@ -128,6 +134,7 @@ export const getCurrentUserService = async (userId: string) => {
     status: user.status,
     role: { id: user.role.id, name: user.role.name },
     permissions,
+    profile: { avatarUrl: user.profile?.avatarUrl }
   };
 };
 

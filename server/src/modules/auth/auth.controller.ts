@@ -3,6 +3,7 @@ import { registerUserService, loginUserService, getCurrentUserService, findUserB
 import { RegisterBody, LoginBody } from './auth.validation'
 import { getAuthCookieOptions, getAuthCookieName, getClearAuthCookieOptions } from '../../common/auth/cookie'
 import { asyncHandler } from '../../common/errors/asyncHandler'
+import { profile } from 'node:console'
 
 export const register = asyncHandler ( async ( 
     req: Request,
@@ -83,7 +84,10 @@ export const getCurrentUser = asyncHandler ( async (
                     id: user.role.id,
                     name: user.role.name
                 },
-                permissions: user.permissions
+                permissions: user.permissions,
+                profile: {
+                    avatarUrl: user.profile?.avatarUrl
+                }
             }
         }
     })
