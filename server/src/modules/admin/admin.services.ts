@@ -36,6 +36,7 @@ export const listUsersService = async (query: ListUsersQuery) => {
         createdAt: true,
         updatedAt: true,
         role: { select: { id: true, name: true } },
+        profile: { select: { avatarUrl: true }}
       },
     }),
   ]);

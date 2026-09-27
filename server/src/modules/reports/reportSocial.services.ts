@@ -35,7 +35,7 @@ export const getFeedReportsService = async (args: {
         status: true,
         createdAt: true,
         updatedAt: true,
-        reporter: { select: { id: true, name: true } },
+        reporter: { select: { id: true, name: true, profile: { select: {avatarUrl: true }} } },
         photos: { 
           orderBy: { createdAt: "asc" },
           select: {
@@ -78,7 +78,7 @@ export const addReportCommentService = async (args: {
         id: true,
         comment: true,
         createdAt: true,
-        user: { select: { id: true, name: true } },
+        user: { select: { id: true, name: true, profile: { select: { avatarUrl: true }} } },
       },
     });
 
@@ -108,7 +108,7 @@ export const getReportCommentsService = async (args: { reportId: string; actor: 
       id: true,
       comment: true,
       createdAt: true,
-      user: { select: { id: true, name: true, role: { select: { name: true } } } },
+      user: { select: { id: true, name: true, profile: { select: { avatarUrl: true }} } },
     },
   });
 };
@@ -127,7 +127,7 @@ export const getReportHistoryService = async (args: { reportId: string; actor: A
       newStatus: true,
       remarks: true,
       createdAt: true,
-      author: { select: { id: true, name: true, role: { select: { name: true } } } },
+      author: { select: { id: true, name: true, role: { select: { name: true } }, user: { select: { id: true, name: true, profile: { select: { avatarUrl: true }} } }, } },
     },
   });
 };
