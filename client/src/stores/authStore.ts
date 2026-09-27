@@ -9,6 +9,9 @@ export type AuthUser = {
     id: number;
     name: "RESIDENT" | "VALIDATOR" | "BARANGAY_STAFF" | "ADMIN";
   };
+  profile: {
+    avatarUrl?: string
+  }
 };
 
 type AuthState = {
