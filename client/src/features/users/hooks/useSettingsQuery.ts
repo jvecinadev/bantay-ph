@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMySettings } from "../api";
+import { userApi } from "../api";
 
 const useSettingsQuery = () => {
   return useQuery({
     queryKey: ["users", "me", "settings"],
-    queryFn: getMySettings,
+    queryFn: userApi.getMySettings,
     staleTime: 30_000,
   });
 };
