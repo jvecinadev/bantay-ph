@@ -1,27 +1,38 @@
 import { useEffect, useMemo, useState } from "react";
 import useSettingsQuery from "../../features/users/hooks/useSettingsQuery";
-import usePatchSettingsMutation from "../../features/users/hooks/usePatchSettingsQuery";
+import usePatchSettingsMutation from "../../features/users/hooks/usePatchSettingsMutation";
 import SettingsCard from "../../features/users/components/SettingsCard";
 import ToggleField from "../../features/users/components/ToggleField";
+import SaveBar from "../../features/users/components/SaveBar";
 import ThemeField from "../../features/users/components/ThemeField";
 import { buildFieldErrors } from "../../features/users/utils/settingsForm";
+import type { MySettings } from "../../features/users/types";
+import type { ApiError } from "../../lib/api/types";
 
 const UserSettingsPage = () => {
   const q = useSettingsQuery();
   const patch = usePatchSettingsMutation();
 
-  type MySettings = NonNullable<typeof q.data>;
+  type Settings = MySettings["settings"];
+  type PatchBody = Partial<Settings>;
 
-  const [base, setBase] = useState<MySettings | null>(null);
-  const [draft, setDraft] = useState<MySettings | null>(null);
+  const [base, setBase] = useState<Settings | null>(null);
+  const [draft, setDraft] = useState<Settings | null>(null);
 
+  // init once from server
   useEffect(() => {
     if (!q.data) return;
-    setBase(q.data);
-    setDraft(q.data);
-  }, [q.data]);
+    if (base) return;
+    setBase(q.data.settings);
+    setDraft(q.data.settings);
+  }, [q.data, base]);
 
-  const fieldErrors = useMemo(() => buildFieldErrors(patch.error), [patch.error]);
+  const fieldErrors = useMemo(
+    () => buildFieldErrors(patch.error as ApiError | undefined),
+    [patch.error]
+  );
+
+  const errFor = (key: string) => fieldErrors[key] ?? fieldErrors[`settings.${key}`];
 
   const isDirty = useMemo(() => {
     if (!base || !draft) return false;
@@ -36,8 +47,7 @@ const UserSettingsPage = () => {
   const onSave = () => {
     if (!base || !draft) return;
 
-    type Vars = Parameters<typeof patch.mutate>[0];
-    const changes: Vars = {};
+    const changes: PatchBody = {};
 
     if (base.theme !== draft.theme) changes.theme = draft.theme;
 
@@ -56,9 +66,10 @@ const UserSettingsPage = () => {
 
     patch.mutate(changes, {
       onSuccess: (data) => {
-        // keep local state synced with server response (and cache)
-        setBase(data as MySettings);
-        setDraft(data as MySettings);
+        // response is MySettings -> sync local base/draft
+        const next = (data as MySettings).settings;
+        setBase(next);
+        setDraft(next);
       },
     });
   };
@@ -97,20 +108,25 @@ const UserSettingsPage = () => {
           <div className="mt-1 text-sm text-muted-foreground">
             Manage your preferences.
           </div>
+
+          <div className="mt-2 text-xs text-muted-foreground">
+            {q.data?.isDefault ? "Using default settings" : "Custom settings"}
+            {q.data?.updatedAt ? ` • Updated ${new Date(q.data.updatedAt).toLocaleString()}` : ""}
+          </div>
         </div>
 
         {patch.error && !Object.keys(fieldErrors).length ? (
           <div className="mb-3 rounded-xl border border-border bg-card p-3 text-sm text-destructive">
-            {patch.error.message}
+            {(patch.error as ApiError).message}
           </div>
         ) : null}
 
         <div className="space-y-3">
           <SettingsCard title="Appearance" description="Control how the app looks.">
             <ThemeField
-              value={draft.theme as any}
+              value={draft.theme}
               disabled={patch.isPending}
-              error={fieldErrors["theme"]}
+              error={errFor("theme")}
               onChange={(next) => setDraft((d) => (d ? { ...d, theme: next } : d))}
             />
           </SettingsCard>
@@ -120,15 +136,10 @@ const UserSettingsPage = () => {
               label="Email notifications"
               checked={draft.notifications.email}
               disabled={patch.isPending}
-              error={fieldErrors["notifications.email"]}
+              error={errFor("notifications.email")}
               onChange={(next) =>
                 setDraft((d) =>
-                  d
-                    ? {
-                        ...d,
-                        notifications: { ...d.notifications, email: next },
-                      }
-                    : d
+                  d ? { ...d, notifications: { ...d.notifications, email: next } } : d
                 )
               }
             />
@@ -136,15 +147,10 @@ const UserSettingsPage = () => {
               label="SMS notifications"
               checked={draft.notifications.sms}
               disabled={patch.isPending}
-              error={fieldErrors["notifications.sms"]}
+              error={errFor("notifications.sms")}
               onChange={(next) =>
                 setDraft((d) =>
-                  d
-                    ? {
-                        ...d,
-                        notifications: { ...d.notifications, sms: next },
-                      }
-                    : d
+                  d ? { ...d, notifications: { ...d.notifications, sms: next } } : d
                 )
               }
             />
@@ -155,39 +161,22 @@ const UserSettingsPage = () => {
               label="Show my name in feed"
               checked={draft.privacy.showNameInFeed}
               disabled={patch.isPending}
-              error={fieldErrors["privacy.showNameInFeed"]}
+              error={errFor("privacy.showNameInFeed")}
               onChange={(next) =>
                 setDraft((d) =>
-                  d
-                    ? {
-                        ...d,
-                        privacy: { ...d.privacy, showNameInFeed: next },
-                      }
-                    : d
+                  d ? { ...d, privacy: { ...d.privacy, showNameInFeed: next } } : d
                 )
               }
             />
           </SettingsCard>
         </div>
 
-        <div className="mt-4 flex items-center justify-end gap-2">
-          <button
-            type="button"
-            className="rounded-lg border border-border bg-background px-4 py-2 text-sm text-foreground disabled:opacity-50"
-            disabled={!isDirty || patch.isPending}
-            onClick={onReset}
-          >
-            Reset
-          </button>
-          <button
-            type="button"
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-            disabled={!isDirty || patch.isPending}
-            onClick={onSave}
-          >
-            {patch.isPending ? "Saving..." : "Save changes"}
-          </button>
-        </div>
+        <SaveBar
+          isDirty={isDirty}
+          isSaving={patch.isPending}
+          onReset={onReset}
+          onSave={onSave}
+        />
       </div>
     </div>
   );
