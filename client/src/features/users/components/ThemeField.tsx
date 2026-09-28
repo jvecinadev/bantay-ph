@@ -1,18 +1,20 @@
-type Props<TTheme extends string> = {
-  value: TTheme;
-  onChange: (next: TTheme) => void;
+import type { Theme } from "../types";
+
+type Props = {
+  value: Theme;
+  onChange: (next: Theme) => void;
   disabled?: boolean;
   error?: string;
 };
 
-const ThemeField = <TTheme extends string,>({ value, onChange, disabled, error }: Props<TTheme>) => {
-  // adjust labels/values if your backend uses different strings
-  const options = ["SYSTEM", "LIGHT", "DARK"] as const;
+const ThemeField = ({ value, onChange, disabled, error }: Props) => {
+  const options: Theme[] = ["system", "light", "dark"];
 
   return (
     <div>
       <label className="block">
         <div className="text-sm font-medium text-foreground">Theme</div>
+
         <select
           className={[
             "mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground",
@@ -21,14 +23,11 @@ const ThemeField = <TTheme extends string,>({ value, onChange, disabled, error }
           ].join(" ")}
           value={value}
           disabled={disabled}
-          onChange={(e) => onChange(e.target.value as TTheme)}
+          onChange={(e) => onChange(e.target.value as Theme)}
         >
-          {/* keep current value even if it's not in our list */}
-          {!options.includes(value as any) ? <option value={value}>{value}</option> : null}
-
           {options.map((opt) => (
             <option key={opt} value={opt}>
-              {opt === "SYSTEM" ? "System" : opt === "LIGHT" ? "Light" : "Dark"}
+              {opt === "system" ? "System" : opt === "light" ? "Light" : "Dark"}
             </option>
           ))}
         </select>

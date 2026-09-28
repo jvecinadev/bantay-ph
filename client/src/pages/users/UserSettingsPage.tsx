@@ -65,8 +65,7 @@ const UserSettingsPage = () => {
     if (!Object.keys(changes).length) return;
 
     patch.mutate(changes, {
-      onSuccess: (data) => {
-        // response is MySettings -> sync local base/draft
+      onSuccess: (data) => {    
         const next = (data as MySettings).settings;
         setBase(next);
         setDraft(next);
