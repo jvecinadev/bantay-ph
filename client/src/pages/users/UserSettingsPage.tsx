@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import useSettingsQuery from "../../features/users/hooks/useSettingsQuery";
 import usePatchSettingsMutation from "../../features/users/hooks/usePatchSettingsQuery";
-import { buildFieldErrors, humanizeKey, shallowDiff } from "../../features/users/utils/settingsForm";
+import SettingsCard from "../../features/users/components/SettingsCard";
 import ToggleField from "../../features/users/components/ToggleField";
-import TextField from "../../features/users/components/TextField";
-import NumberField from "../../features/users/components/NumberField";
+import ThemeField from "../../features/users/components/ThemeField";
+import { buildFieldErrors } from "../../features/users/utils/settingsForm";
 
 const UserSettingsPage = () => {
   const q = useSettingsQuery();
@@ -12,61 +12,65 @@ const UserSettingsPage = () => {
 
   type MySettings = NonNullable<typeof q.data>;
 
-  const [draft, setDraft] = useState<MySettings | null>(null);
   const [base, setBase] = useState<MySettings | null>(null);
+  const [draft, setDraft] = useState<MySettings | null>(null);
 
-  // initialize draft once data arrives; don't clobber if user is editing
   useEffect(() => {
     if (!q.data) return;
-    if (!base) {
-      setBase(q.data as MySettings);
-      setDraft(q.data as MySettings);
-    }
-  }, [q.data, base]);
+    setBase(q.data);
+    setDraft(q.data);
+  }, [q.data]);
 
-  // if server data changes (refetch) AND user isn't dirty, refresh the draft
-  useEffect(() => {
-    if (!q.data || !base || !draft) return;
-
-    const isDirty = JSON.stringify(draft) !== JSON.stringify(base);
-    if (!isDirty) {
-      setBase(q.data as MySettings);
-      setDraft(q.data as MySettings);
-    }
-  }, [q.data, base, draft]);
-
-  const fieldErrors = useMemo(() => buildFieldErrors(patch.error as any), [patch.error]);
+  const fieldErrors = useMemo(() => buildFieldErrors(patch.error), [patch.error]);
 
   const isDirty = useMemo(() => {
     if (!base || !draft) return false;
-    return JSON.stringify(draft) !== JSON.stringify(base);
+    return JSON.stringify(base) !== JSON.stringify(draft);
   }, [base, draft]);
-
-  const onSave = () => {
-    if (!base || !draft) return;
-    const changes = shallowDiff(base, draft);
-    patch.mutate(changes, {
-      onSuccess: (data: any) => {
-        // keep local state aligned with what server returned (and what cache now has)
-        setBase(data);
-        setDraft(data);
-      },
-    });
-  };
 
   const onReset = () => {
     if (!base) return;
     setDraft(base);
   };
 
+  const onSave = () => {
+    if (!base || !draft) return;
+
+    type Vars = Parameters<typeof patch.mutate>[0];
+    const changes: Vars = {};
+
+    if (base.theme !== draft.theme) changes.theme = draft.theme;
+
+    if (
+      base.notifications.email !== draft.notifications.email ||
+      base.notifications.sms !== draft.notifications.sms
+    ) {
+      changes.notifications = draft.notifications;
+    }
+
+    if (base.privacy.showNameInFeed !== draft.privacy.showNameInFeed) {
+      changes.privacy = draft.privacy;
+    }
+
+    if (!Object.keys(changes).length) return;
+
+    patch.mutate(changes, {
+      onSuccess: (data) => {
+        // keep local state synced with server response (and cache)
+        setBase(data as MySettings);
+        setDraft(data as MySettings);
+      },
+    });
+  };
+
   if (q.isLoading) {
     return (
       <div className="p-4">
         <div className="mx-auto max-w-2xl space-y-3">
-          <div className="h-8 w-40 rounded-lg bg-muted" />
-          <div className="h-24 rounded-xl bg-muted" />
-          <div className="h-24 rounded-xl bg-muted" />
-          <div className="h-24 rounded-xl bg-muted" />
+          <div className="h-7 w-40 rounded-lg bg-muted" />
+          <div className="h-28 rounded-xl bg-muted" />
+          <div className="h-28 rounded-xl bg-muted" />
+          <div className="h-28 rounded-xl bg-muted" />
         </div>
       </div>
     );
@@ -77,7 +81,7 @@ const UserSettingsPage = () => {
       <div className="p-4">
         <div className="mx-auto max-w-2xl rounded-xl border border-border bg-card p-4">
           <div className="text-sm font-medium text-foreground">Failed to load settings</div>
-          <div className="mt-1 text-xs text-muted-foreground">{q.error?.message}</div>
+          <div className="mt-1 text-xs text-muted-foreground">{q.error.message}</div>
         </div>
       </div>
     );
@@ -85,71 +89,87 @@ const UserSettingsPage = () => {
 
   if (!draft) return null;
 
-  const entries = Object.entries(draft) as Array<[keyof MySettings & string, any]>;
-
   return (
     <div className="p-4">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-3">
+        <div className="mb-4">
           <div className="text-lg font-semibold text-foreground">Settings</div>
           <div className="mt-1 text-sm text-muted-foreground">
-            Manage your preferences for Bantay PH.
+            Manage your preferences.
           </div>
         </div>
 
         {patch.error && !Object.keys(fieldErrors).length ? (
           <div className="mb-3 rounded-xl border border-border bg-card p-3 text-sm text-destructive">
-            {(patch.error as any)?.message ?? "Failed to save settings"}
+            {patch.error.message}
           </div>
         ) : null}
 
         <div className="space-y-3">
-          {entries.map(([key, value]) => {
-            const err = fieldErrors[key];
+          <SettingsCard title="Appearance" description="Control how the app looks.">
+            <ThemeField
+              value={draft.theme as any}
+              disabled={patch.isPending}
+              error={fieldErrors["theme"]}
+              onChange={(next) => setDraft((d) => (d ? { ...d, theme: next } : d))}
+            />
+          </SettingsCard>
 
-            if (typeof value === "boolean") {
-              return (
-                <ToggleField
-                  key={key}
-                  label={humanizeKey(key)}
-                  checked={value}
-                  disabled={patch.isPending}
-                  error={err}
-                  onChange={(next) => setDraft((d) => (d ? ({ ...d, [key]: next } as MySettings) : d))}
-                />
-              );
-            }
+          <SettingsCard title="Notifications" description="Choose which alerts you receive.">
+            <ToggleField
+              label="Email notifications"
+              checked={draft.notifications.email}
+              disabled={patch.isPending}
+              error={fieldErrors["notifications.email"]}
+              onChange={(next) =>
+                setDraft((d) =>
+                  d
+                    ? {
+                        ...d,
+                        notifications: { ...d.notifications, email: next },
+                      }
+                    : d
+                )
+              }
+            />
+            <ToggleField
+              label="SMS notifications"
+              checked={draft.notifications.sms}
+              disabled={patch.isPending}
+              error={fieldErrors["notifications.sms"]}
+              onChange={(next) =>
+                setDraft((d) =>
+                  d
+                    ? {
+                        ...d,
+                        notifications: { ...d.notifications, sms: next },
+                      }
+                    : d
+                )
+              }
+            />
+          </SettingsCard>
 
-            if (typeof value === "number" || value === null) {
-              return (
-                <NumberField
-                  key={key}
-                  label={humanizeKey(key)}
-                  value={typeof value === "number" ? value : null}
-                  disabled={patch.isPending}
-                  error={err}
-                  onChange={(next) => setDraft((d) => (d ? ({ ...d, [key]: next } as MySettings) : d))}
-                />
-              );
-            }
-
-            // default string-ish editor
-            return (
-              <TextField
-                key={key}
-                label={humanizeKey(key)}
-                value={value ?? ""}
-                disabled={patch.isPending}
-                error={err}
-                onChange={(next) =>
-                  setDraft((d) => (d ? ({ ...d, [key]: next } as MySettings) : d))
-                }
-              />
-            );
-          })}
+          <SettingsCard title="Privacy" description="Control what others can see.">
+            <ToggleField
+              label="Show my name in feed"
+              checked={draft.privacy.showNameInFeed}
+              disabled={patch.isPending}
+              error={fieldErrors["privacy.showNameInFeed"]}
+              onChange={(next) =>
+                setDraft((d) =>
+                  d
+                    ? {
+                        ...d,
+                        privacy: { ...d.privacy, showNameInFeed: next },
+                      }
+                    : d
+                )
+              }
+            />
+          </SettingsCard>
         </div>
 
-        {/* Save bar */}
         <div className="mt-4 flex items-center justify-end gap-2">
           <button
             type="button"
