@@ -25,6 +25,7 @@ import StaffDashboardPage from "../../pages/StaffDashboardPage";
 import AdminDashboardPage from "../../pages/AdminDashboardPage";
 import RegisterProfilePage from "../../pages/users/ProfilePage";
 import UserSettingsPage from "../../pages/users/UserSettingsPage";
+import UserProfilePage from "../../pages/users/UserProfilePage";
 
 import TermsPage from "../../pages/legal/TermsPage";
 import PrivacyPage from "../../pages/legal/PrivacyPage";
@@ -111,6 +112,10 @@ const router = createBrowserRouter([
           {
             element: <RequirePermissions anyOf={PERMS.feedRead} />,
             children: [{ path: ROUTES.userSettings, element: <UserSettingsPage /> }],
+          },
+          {
+            element: <RequirePermissions anyOf={PERMS.feedRead} />,
+            children: [{ path: ROUTES.viewUserProfile, element: <UserProfilePage /> }],
           },
 
           { path: ROUTES.unauthorized, element: <UnauthorizedPage /> },

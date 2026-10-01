@@ -64,7 +64,7 @@ export const userApi = {
   },
 
   getAdminUserPrivateProfile: async (id: string): Promise<AdminPrivateUserProfile> => {
-    const res = await http.get<ApiEnvelope<AdminPrivateUserProfile>>(`/admin/users/${id}/profile`);
+    const res = await http.get<ApiEnvelope<AdminPrivateUserProfile>>(`/admin/users/${id}`);
     return res.data.data;
   },
 };

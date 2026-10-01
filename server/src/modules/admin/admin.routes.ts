@@ -15,6 +15,6 @@ router.get("/users", requirePermission("user:read"), validate(listUserSchema), l
 router.get("/audit-logs", requirePermission("audit:read"), validate(listAuditLogsSchema), listAuditLogs)
 router.patch("/users/:id/role", requirePermission("user:update_role"), validate(updateUserRoleSchema), updateUserRole)
 router.patch("/users/:id/status", requirePermission("user:update_status"), validate(updateUserStatusSchema), updateUserStatus)
-router.get("/:id/admin", requirePermission("user:read"), validate(getAdminUserProfileSchema), getAdminUserProfile)
+router.get("/users/:id", requirePermission("user:read"), validate(getAdminUserProfileSchema), getAdminUserProfile)
 
 export default router;
