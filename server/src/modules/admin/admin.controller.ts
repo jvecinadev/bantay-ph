@@ -2,13 +2,14 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../common/errors/asyncHandler";
 import { getAdminUserProfileService } from "../admin/adminUserProfile.services";
-import { ListAuditLogsQuery, ListUsersQuery, UpdateUserRole, UpdateUserStatus, GetAdminUserProfileParams } from "./admin.validation";
+import { ListAuditLogsQuery, ListUsersQuery, UpdateUserRole, UpdateUserStatus, GetAdminUserProfileParams, AdminDeleteReport } from "./admin.validation";
 
 import {
   listUsersService,
   updateUserRoleService,
   updateUserStatusService,
   listAuditLogsService,
+  softDeleteReportAsAdminService
 } from "./admin.services";
 
 
@@ -86,5 +87,16 @@ export const getAdminUserProfile = asyncHandler(async (req: Request, res: Respon
   return res.status(200).json({
     message: "User private profile",
     data: { user },
+  });
+});
+
+export const adminDeleteReport = asyncHandler(async (req: any, res: any) => {
+  const { params, body } = res.locals.validated as AdminDeleteReport
+
+  const report = await softDeleteReportAsAdminService(params.id, req.auth!.id, body?.reason);
+
+  return res.status(200).json({
+    message: "Report deleted (admin)",
+    data: { report },
   });
 });

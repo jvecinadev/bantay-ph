@@ -64,6 +64,21 @@ export const getAdminUserProfileSchema = z.object({
     .strict(),
 });
 
+export const adminDeleteReportSchema = z.object({
+  params: z
+    .object({
+      id: z.string().trim().uuid("Invalid report id"),
+    })
+    .strict(),
+  body: z
+    .object({
+      reason: z.string().trim().max(255, "Maximum of 255 characters").optional(),
+    })
+    .strict()
+    .optional(),
+});
+
+export type AdminDeleteReport = z.infer<typeof adminDeleteReportSchema>;
 export type GetAdminUserProfileParams = z.infer<typeof getAdminUserProfileSchema>["params"];
 export type ListUsersQuery = z.infer<typeof listUserSchema>["query"]
 export type UpdateUserRole = z.infer<typeof updateUserRoleSchema>

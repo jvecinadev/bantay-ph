@@ -205,3 +205,61 @@ export const listAuditLogsService = async (query: ListAuditLogsQuery) => {
     logs,
   };
 };
+
+
+export const softDeleteReportAsAdminService = async (
+  reportId: string,
+  adminId: string,
+  reason?: string
+) => {
+  const report = await prisma.report.findUnique({
+    where: { id: reportId },
+    select: {
+      id: true,
+      deletedAt: true,
+      status: true,
+      reporterId: true,
+    },
+  });
+
+  if (!report) throw new HttpError(404, "Report not found");
+  if (report.deletedAt) throw new HttpError(409, "Report is already deleted");
+
+  const cleanReason = reason?.trim() ? reason.trim() : null;
+  if (cleanReason && cleanReason.length > 255) {
+    throw new HttpError(400, "Reason must not exceed 255 characters");
+  }
+
+  const now = new Date();
+
+  const updated = await prisma.$transaction(async (tx: any) => {
+    const r = await tx.report.update({
+      where: { id: reportId },
+      data: {
+        deletedAt: now,
+        deletedById: adminId,
+        deletedReason: cleanReason,
+      },
+      select: { id: true, deletedAt: true },
+    });
+
+    await tx.auditLog.create({
+      data: {
+        userId: adminId,
+        action: "REPORT_SOFT_DELETED",
+        entityType: "REPORT",
+        entityId: reportId,
+        details: JSON.stringify({
+          mode: "admin",
+          reason: cleanReason,
+          previousStatus: report.status,
+          reporterId: report.reporterId,
+        }),
+      },
+    });
+
+    return r;
+  });
+
+  return updated; 
+};
