@@ -12,6 +12,9 @@ export type AdminUser = {
     id: number;
     name: RoleName;
   };
+  profile: {
+    avatarUrl: string;
+  }
 };
 
 export type PaginatedUsers = {
