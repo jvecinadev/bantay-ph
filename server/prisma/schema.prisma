@@ -88,6 +88,7 @@ model User {
 
   reportsAsReporter Report[] @relation("ReporterRelation")
   reportsAsAssignee Report[] @relation("AssigneeRelation")
+  deletedReports Report[] @relation("ReportDeletedByRelation")
 
   verifications        ReportVerification[]  @relation("ValidatorRelation")
   comments             ReportComment[]
@@ -115,8 +116,14 @@ model Report {
   assignedToId String?   @map("assigned_to") @db.VarChar(36)
   assignedAt   DateTime? @map("assigned_at")
 
+  deletedAt     DateTime? @map("deleted_at")
+  deletedById   String?   @map("deleted_by") @db.VarChar(36)
+  deletedReason String?   @map("deleted_reason") @db.VarChar(255)
+
   reporter   User  @relation("ReporterRelation", fields: [reporterId], references: [id], onDelete: Restrict)
   assignedTo User? @relation("AssigneeRelation", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  deletedBy User? @relation("ReportDeletedByRelation", fields: [deletedById], references: [id], onDelete: SetNull)
 
   photos ReportPhoto[]
   verifications ReportVerification[]
@@ -126,6 +133,10 @@ model Report {
   @@index([status])
   @@index([reporterId])
   @@index([assignedToId])
+
+  @@index([deletedAt])
+  @@index([status, deletedAt])
+  @@index([reporterId, deletedAt])
 
   @@map("reports")
 }
