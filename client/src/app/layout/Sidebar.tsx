@@ -30,21 +30,21 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Moderation",
     items: [
+      { label: "Staff Dashboard", to: ROUTES.staffDashboard, anyOf: ["report:staff_queue:read"] },
       { label: "Verification Queue", to: ROUTES.validatorQueue, anyOf: ["verification:queue:read"] },
       { label: "Staff Queue", to: ROUTES.staffQueue, anyOf: ["report:staff_queue:read"] },
-      { label: "Staff Dashboard", to: ROUTES.staffDashboard, anyOf: ["report:staff_queue:read"] },
     ],
   },
   {
     label: "Admin",
     items: [
+      { label: "Admin Dashboard", to: ROUTES.adminDashboard, anyOf: ["audit:read", "user:read"] },
       {
         label: "Users",
         to: ROUTES.adminUsers,
         anyOf: ["user:read", "user:update_role", "user:update_status"],
       },
       { label: "Audit Logs", to: ROUTES.adminAuditLogs, anyOf: ["audit:read"] },
-      { label: "Admin Dashboard", to: ROUTES.adminDashboard, anyOf: ["audit:read", "user:read"] },
     ],
   },
 ];
