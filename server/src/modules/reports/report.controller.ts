@@ -12,6 +12,7 @@ import {
   getStaffQueueService,
   assignReportToSelfService,
   updateAssignedReportStatusService,
+  softDeleteReportAsOwnerService
 } from "./report.services";
 
 import type {
@@ -95,6 +96,17 @@ export const updateAssignedStatus = asyncHandler(async (req: Request, res: Respo
 
   res.status(200).json({
     message: "Report status updated",
+    data: { report },
+  });
+});
+
+export const deleteMyReport = asyncHandler(async (req: any, res: any) => {
+  const { params } = res.locals.validated as { params: { id: string } };
+
+  const report = await softDeleteReportAsOwnerService(params.id, req.auth!.id);
+
+  return res.status(200).json({
+    message: "Report deleted",
     data: { report },
   });
 });

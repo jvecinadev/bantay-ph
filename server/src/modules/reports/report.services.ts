@@ -406,3 +406,52 @@ export const updateAssignedReportStatusService = async (args: {
     return updatedReport;
   });
 };
+
+
+export const softDeleteReportAsOwnerService = async (reportId: string, userId: string) => {
+  const report = await prisma.report.findUnique({
+    where: { id: reportId },
+    select: {
+      id: true,
+      reporterId: true,
+      status: true,
+      deletedAt: true,
+    },
+  });
+
+  if (!report) throw new HttpError(404, "Report not found");
+  if (report.deletedAt) throw new HttpError(409, "Report is already deleted");
+  if (report.reporterId !== userId) throw new HttpError(403, "You do not own this report");
+
+  if (report.status !== "REPORTED") {
+    throw new HttpError(409, "Only REPORTED reports can be deleted");
+  }
+
+  const now = new Date();
+
+  const updated = await prisma.$transaction(async (tx: any) => {
+    const r = await tx.report.update({
+      where: { id: reportId },
+      data: {
+        deletedAt: now,
+        deletedById: userId,
+        deletedReason: null,
+      },
+      select: { id: true, deletedAt: true },
+    });
+
+    await tx.auditLog.create({
+      data: {
+        userId,
+        action: "REPORT_SOFT_DELETED",
+        entityType: "REPORT",
+        entityId: reportId,
+        details: JSON.stringify({ mode: "owner" }),
+      },
+    });
+
+    return r;
+  });
+
+  return updated; 
+};

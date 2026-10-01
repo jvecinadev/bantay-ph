@@ -5,7 +5,7 @@ import { requireActiveAccount } from "../../middleware/requireActive.middleware"
 import { requirePermission } from "../../middleware/requirePermission.middleware";
 import { validate } from "../../middleware/validateRequest.middleware";
 import { createReportSchema, getMyReportSchema, getReportByIdSchema, staffAssignSchema, staffQueueSchema, updateAssignedStatusSchema } from "./report.validation";
-import { assignToSelf, createReport, getMyReports, getReportById, getStaffQueue, updateAssignedStatus } from "./report.controller";
+import { assignToSelf, createReport, deleteMyReport, getMyReports, getReportById, getStaffQueue, updateAssignedStatus } from "./report.controller";
 import { addCommentSchema, feedQuerySchema, reportIdParamsSchema } from "./reportSocial.validation";
 import { addReportComment, getFeedReports, getReportComments, getReportHistory } from "./reportSocial.controller";
 import { uploadReportPhotos } from "./reportPhotos.controller";
@@ -21,6 +21,7 @@ router.get("/mine", requirePermission("report:read:own"), validate(getMyReportSc
 router.get("/feed", requirePermission("report:feed:read"), validate(feedQuerySchema), getFeedReports)
 router.get("/:id", validate(getReportByIdSchema), getReportById)
 router.post("/:id/photos", requirePermission("report:create"), validate(uploadReportPhotosSchema), uploadReportPhotosMw, uploadReportPhotos)
+router.delete("/:id", validate(getReportByIdSchema), deleteMyReport)
 
 // Staff
 router.get("/staff/queue", requirePermission("report:staff_queue:read"), validate(staffQueueSchema), getStaffQueue)
