@@ -19,7 +19,7 @@ const VerificationQueuePage = () => {
   const hasItems = (queueQuery.data?.reports?.length ?? 0) > 0;
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <div className="w-full">
       <header>
         <div className="flex items-center gap-2.5">
           <h1 className="text-2xl font-bold tracking-tight text-text-primary">
@@ -47,10 +47,10 @@ const VerificationQueuePage = () => {
         </div>
       ) : null}
 
-      <div className="mt-6 space-y-4">
+      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {queueQuery.isLoading ? (
           <>
-            {[...Array(3)].map((_, i) => (
+            {[...Array(6)].map((_, i) => (
               <div
                 key={i}
                 className="animate-pulse overflow-hidden rounded-2xl border border-border bg-surface shadow-card"
@@ -82,7 +82,7 @@ const VerificationQueuePage = () => {
             <VerificationQueueItemRow key={r.id} item={r} canClaim={canClaim} />
           ))
         ) : (
-          <div className="rounded-2xl border border-dashed border-border-strong bg-surface-sunken px-6 py-14 text-center">
+          <div className="rounded-2xl border border-dashed border-border-strong bg-surface-sunken px-6 py-14 text-center md:col-span-2 xl:col-span-3">
             <div className="text-sm font-semibold text-text-primary">
               Queue is empty
             </div>
@@ -95,7 +95,7 @@ const VerificationQueuePage = () => {
       </div>
 
       {queueQuery.data && queueQuery.data.totalPages > 1 ? (
-        <div className="mt-6">
+        <div className="mt-8">
           <Pagination
             page={queueQuery.data.page}
             totalPages={queueQuery.data.totalPages}
