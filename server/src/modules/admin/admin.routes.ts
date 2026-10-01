@@ -3,9 +3,9 @@ import { Router } from "express";
 import { requireAuth } from "../../middleware/requireAuth.middleware";
 import { requireActiveAccount } from "../../middleware/requireActive.middleware";
 import { requirePermission } from "../../middleware/requirePermission.middleware";
-import { getAdminUserProfile, listAuditLogs, listUsers, updateUserRole, updateUserStatus } from "./admin.controller";
+import { adminDeleteReport, getAdminUserProfile, listAuditLogs, listUsers, updateUserRole, updateUserStatus } from "./admin.controller";
 import { validate } from "../../middleware/validateRequest.middleware";
-import { getAdminUserProfileSchema, listAuditLogsSchema, listUserSchema, updateUserRoleSchema, updateUserStatusSchema } from "./admin.validation";
+import { adminDeleteReportSchema, getAdminUserProfileSchema, listAuditLogsSchema, listUserSchema, updateUserRoleSchema, updateUserStatusSchema } from "./admin.validation";
 
 
 const router = Router()
@@ -16,5 +16,6 @@ router.get("/audit-logs", requirePermission("audit:read"), validate(listAuditLog
 router.patch("/users/:id/role", requirePermission("user:update_role"), validate(updateUserRoleSchema), updateUserRole)
 router.patch("/users/:id/status", requirePermission("user:update_status"), validate(updateUserStatusSchema), updateUserStatus)
 router.get("/users/:id", requirePermission("user:read"), validate(getAdminUserProfileSchema), getAdminUserProfile)
+router.delete("/reports/:id", requirePermission("audit:read"), validate(adminDeleteReportSchema), adminDeleteReport)
 
 export default router;
