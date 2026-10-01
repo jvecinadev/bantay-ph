@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
 import { getInitials } from "../lib/helper/getInitials";
@@ -16,6 +16,12 @@ import HistoryTimeline from "../features/reports/components/HistoryTimeline";
 import VerificationPanel from "../features/verifications/components/VerificationPanel";
 import StaffActionPanel from "../features/staff/components/StaffActionPanel";
 import ReportPhotos from "../features/reports/components/ReportPhotos";
+
+import Modal from "../shared/ui/Modal";
+import {
+  useAdminDeleteReportMutation,
+  useDeleteMyReportMutation,
+} from "../features/reports/hooks/useSoftDeleteReportMutation";
 
 const ReportDetailPage = () => {
   const { id = "" } = useParams();
@@ -49,6 +55,21 @@ const ReportDetailPage = () => {
       lng,
     )}#map=18/${encodeURIComponent(lat)}/${encodeURIComponent(lng)}`;
   }, [report]);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("");
+
+  const deleteMine = useDeleteMyReportMutation();
+  const deleteAdmin = useAdminDeleteReportMutation();
+
+  const isDeleting = deleteMine.isPending || deleteAdmin.isPending;
+  const deleteError = deleteMine.error ?? deleteAdmin.error ?? null;
+
+  const canAdminDelete = permissions.includes("audit:read");
+  const canOwnerDelete =
+    !!report && !!me?.id && report.reporterId === me.id && report.status === "REPORTED";
+
+  const deleteMode = canAdminDelete ? "admin" : canOwnerDelete ? "owner" : "none";
 
   if (detailQuery.isLoading) {
     return (
@@ -108,9 +129,7 @@ const ReportDetailPage = () => {
   if (!report) {
     return (
       <div className="rounded-2xl border border-dashed border-border-strong bg-surface-sunken px-6 py-12 text-center">
-        <div className="text-sm font-semibold text-text-primary">
-          Report not found
-        </div>
+        <div className="text-sm font-semibold text-text-primary">Report not found</div>
         <div className="mt-1 text-xs text-text-secondary">
           It may have been removed or you don't have access.
         </div>
@@ -141,208 +160,327 @@ const ReportDetailPage = () => {
   );
 
   return (
-    <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:gap-8">
-      <div className="min-w-0 space-y-6">
-        <div>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="group -ml-1.5 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-sm font-medium text-text-secondary transition-colors hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
-          >
-            <span className="transition-transform group-hover:-translate-x-0.5">
-              ←
-            </span>
-            Back
-          </button>
+    <>
+      <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:gap-8">
+        <div className="min-w-0 space-y-6">
+          <div>
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="group -ml-1.5 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-sm font-medium text-text-secondary transition-colors hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+            >
+              <span className="transition-transform group-hover:-translate-x-0.5">←</span>
+              Back
+            </button>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-2.5 py-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
-                {getCategoryLabel(report.category)}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-2.5 py-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary">
+                  {getCategoryLabel(report.category)}
+                </span>
+              </div>
+              <StatusBadge status={report.status} />
+            </div>
+
+            <h1 className="mt-4 text-2xl font-bold leading-tight tracking-tight text-text-primary sm:text-3xl">
+              {report.title}
+            </h1>
+
+            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary">
+              <span className="inline-flex items-center gap-2">
+                {hasProfile ? (
+                  <Link
+                    to={profilePath}
+                    aria-label={`View ${reporterName}'s profile`}
+                    className="block h-6 w-6 shrink-0 overflow-hidden rounded-full border border-border bg-primary-light transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+                  >
+                    {avatar}
+                  </Link>
+                ) : (
+                  <span className="block h-6 w-6 shrink-0 overflow-hidden rounded-full border border-border bg-primary-light">
+                    {avatar}
+                  </span>
+                )}
+
+                {hasProfile ? (
+                  <Link
+                    to={profilePath}
+                    className="font-medium text-text-primary transition-colors hover:text-primary focus:outline-none focus-visible:underline"
+                  >
+                    {reporterName}
+                  </Link>
+                ) : (
+                  <span className="font-medium text-text-primary">{reporterName}</span>
+                )}
               </span>
+              <span className="text-text-secondary/50">·</span>
+              <span>{new Date(report.createdAt).toLocaleString()}</span>
             </div>
-            <StatusBadge status={report.status} />
           </div>
 
-          <h1 className="mt-4 text-2xl font-bold leading-tight tracking-tight text-text-primary sm:text-3xl">
-            {report.title}
-          </h1>
-
-          <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary">
-            <span className="inline-flex items-center gap-2">
-              {hasProfile ? (
-                <Link
-                  to={profilePath}
-                  aria-label={`View ${reporterName}'s profile`}
-                  className="block h-6 w-6 shrink-0 overflow-hidden rounded-full border border-border bg-primary-light transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
-                >
-                  {avatar}
-                </Link>
-              ) : (
-                <span className="block h-6 w-6 shrink-0 overflow-hidden rounded-full border border-border bg-primary-light">
-                  {avatar}
-                </span>
-              )}
-
-              {hasProfile ? (
-                <Link
-                  to={profilePath}
-                  className="font-medium text-text-primary transition-colors hover:text-primary focus:outline-none focus-visible:underline"
-                >
-                  {reporterName}
-                </Link>
-              ) : (
-                <span className="font-medium text-text-primary">
-                  {reporterName}
-                </span>
-              )}
-            </span>
-            <span className="text-text-secondary/50">·</span>
-            <span>{new Date(report.createdAt).toLocaleString()}</span>
-          </div>
-        </div>
-
-        <ReportPhotos title={report.title} photos={report.photos ?? []} />
-
-        <div className="rounded-2xl border border-border bg-surface shadow-card">
-          <div className="p-5 sm:p-6">
-            <div className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
-              Description
-            </div>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
-              {report.description}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <aside className="mt-6 xl:row-span-3 xl:mt-0 xl:self-start">
-        <div className="space-y-4 xl:sticky xl:top-24">
-          <VerificationPanel reportId={report.id} status={report.status} />
-          <StaffActionPanel report={report} />
+          <ReportPhotos title={report.title} photos={report.photos ?? []} />
 
           <div className="rounded-2xl border border-border bg-surface shadow-card">
-            <div className="p-5">
+            <div className="p-5 sm:p-6">
               <div className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
-                Location
+                Description
               </div>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-surface-sunken px-2.5 py-1">
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                <span className="font-mono text-xs text-text-secondary">
-                  {report.latitude}, {report.longitude}
-                </span>
-              </div>
-
-              {openMapUrl ? (
-                <a
-                  href={openMapUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-4 flex w-full items-center justify-center rounded-xl border border-border-strong bg-surface px-3.5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-primary hover:bg-primary-light hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/10"
-                >
-                  Open in map
-                </a>
-              ) : null}
+              <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
+                {report.description}
+              </p>
             </div>
           </div>
         </div>
-      </aside>
 
-      <section className="mt-6 min-w-0 space-y-4 xl:col-start-1 xl:mt-0">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight text-text-primary">
-            Comments
-          </h2>
-          <p className="mt-1 text-xs text-text-secondary">
-            Anyone with access can comment.
-          </p>
-        </div>
+        <aside className="mt-6 xl:row-span-3 xl:mt-0 xl:self-start">
+          <div className="space-y-4 xl:sticky xl:top-24">
+            <VerificationPanel reportId={report.id} status={report.status} />
+            <StaffActionPanel report={report} />
 
-        {commentsQuery.error ? (
-          <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
-            <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
-              !
-            </span>
-            <span className="leading-relaxed">{commentsQuery.error.message}</span>
-          </div>
-        ) : null}
+            <div className="rounded-2xl border border-border bg-surface shadow-card">
+              <div className="p-5">
+                <div className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
+                  Location
+                </div>
+                <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-surface-sunken px-2.5 py-1">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                  <span className="font-mono text-xs text-text-secondary">
+                    {report.latitude}, {report.longitude}
+                  </span>
+                </div>
 
-        {commentsQuery.isLoading ? (
-          <div className="space-y-5 border-y border-border py-5">
-            {[...Array(2)].map((_, i) => (
-              <div key={i} className="flex gap-3">
-                <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-surface-sunken" />
-                <div className="flex-1">
-                  <div className="h-3 w-32 animate-pulse rounded bg-surface-sunken" />
-                  <div className="mt-2 h-3 w-full animate-pulse rounded bg-surface-sunken" />
-                  <div className="mt-1.5 h-3 w-4/6 animate-pulse rounded bg-surface-sunken" />
+                {openMapUrl ? (
+                  <a
+                    href={openMapUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-4 flex w-full items-center justify-center rounded-xl border border-border-strong bg-surface px-3.5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-primary hover:bg-primary-light hover:text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/10"
+                  >
+                    Open in map
+                  </a>
+                ) : null}
+              </div>
+            </div>
+
+            {deleteMode !== "none" ? (
+              <div className="rounded-2xl border border-border bg-surface shadow-card">
+                <div className="p-5">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
+                    Danger zone
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeleteReason("");
+                      setDeleteOpen(true);
+                    }}
+                    disabled={isDeleting}
+                    className="mt-4 flex w-full items-center justify-center rounded-xl border border-danger/30 bg-danger-light px-3.5 py-2 text-sm font-medium text-danger transition-colors hover:border-danger/50 focus:outline-none focus-visible:ring-4 focus-visible:ring-danger/20 disabled:opacity-60"
+                  >
+                    Delete report
+                  </button>
                 </div>
               </div>
-            ))}
+            ) : null}
           </div>
-        ) : (
-          <CommentList comments={commentsQuery.data ?? []} />
-        )}
+        </aside>
 
-        <CommentForm
-          canComment={canComment}
-          isPending={addCommentMutation.isPending}
-          onSubmit={async (text) => {
-            await addCommentMutation.mutateAsync({ comment: text });
-          }}
-        />
-
-        {addCommentMutation.error ? (
-          <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
-            <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
-              !
-            </span>
-            <span className="leading-relaxed">
-              {addCommentMutation.error.message}
-            </span>
-          </div>
-        ) : null}
-      </section>
-
-      {canReadHistory ? (
         <section className="mt-6 min-w-0 space-y-4 xl:col-start-1 xl:mt-0">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-text-primary">
-              History
-            </h2>
-            <p className="mt-1 text-xs text-text-secondary">
-              Status changes and remarks.
-            </p>
+            <h2 className="text-lg font-semibold tracking-tight text-text-primary">Comments</h2>
+            <p className="mt-1 text-xs text-text-secondary">Anyone with access can comment.</p>
           </div>
 
-          {historyQuery.error ? (
+          {commentsQuery.error ? (
             <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
               <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
                 !
               </span>
-              <span className="leading-relaxed">{historyQuery.error.message}</span>
+              <span className="leading-relaxed">{commentsQuery.error.message}</span>
             </div>
           ) : null}
 
-          {historyQuery.isLoading ? (
+          {commentsQuery.isLoading ? (
             <div className="space-y-5 border-y border-border py-5">
-              {[...Array(3)].map((_, i) => (
+              {[...Array(2)].map((_, i) => (
                 <div key={i} className="flex gap-3">
-                  <div className="h-6 w-6 shrink-0 animate-pulse rounded-full bg-surface-sunken" />
+                  <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-surface-sunken" />
                   <div className="flex-1">
                     <div className="h-3 w-32 animate-pulse rounded bg-surface-sunken" />
-                    <div className="mt-1.5 h-2.5 w-48 animate-pulse rounded bg-surface-sunken" />
+                    <div className="mt-2 h-3 w-full animate-pulse rounded bg-surface-sunken" />
+                    <div className="mt-1.5 h-3 w-4/6 animate-pulse rounded bg-surface-sunken" />
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <HistoryTimeline items={historyQuery.data ?? []} />
+            <CommentList comments={commentsQuery.data ?? []} />
           )}
+
+          <CommentForm
+            canComment={canComment}
+            isPending={addCommentMutation.isPending}
+            onSubmit={async (text) => {
+              await addCommentMutation.mutateAsync({ comment: text });
+            }}
+          />
+
+          {addCommentMutation.error ? (
+            <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
+              <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
+                !
+              </span>
+              <span className="leading-relaxed">{addCommentMutation.error.message}</span>
+            </div>
+          ) : null}
         </section>
-      ) : null}
-    </div>
+
+        {canReadHistory ? (
+          <section className="mt-6 min-w-0 space-y-4 xl:col-start-1 xl:mt-0">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight text-text-primary">History</h2>
+              <p className="mt-1 text-xs text-text-secondary">Status changes and remarks.</p>
+            </div>
+
+            {historyQuery.error ? (
+              <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
+                <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
+                  !
+                </span>
+                <span className="leading-relaxed">{historyQuery.error.message}</span>
+              </div>
+            ) : null}
+
+            {historyQuery.isLoading ? (
+              <div className="space-y-5 border-y border-border py-5">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex gap-3">
+                    <div className="h-6 w-6 shrink-0 animate-pulse rounded-full bg-surface-sunken" />
+                    <div className="flex-1">
+                      <div className="h-3 w-32 animate-pulse rounded bg-surface-sunken" />
+                      <div className="mt-1.5 h-2.5 w-48 animate-pulse rounded bg-surface-sunken" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <HistoryTimeline items={historyQuery.data ?? []} />
+            )}
+          </section>
+        ) : null}
+      </div>
+
+      <Modal
+        open={deleteOpen}
+        onClose={() => {
+          if (isDeleting) return;
+          setDeleteOpen(false);
+        }}
+        title="Delete report"
+      >
+        <div className="space-y-5">
+          <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3">
+            <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold text-danger">
+              !
+            </span>
+            <div className="min-w-0 space-y-1">
+              <div className="text-sm font-semibold text-danger">
+                {deleteMode === "admin"
+                  ? "This action cannot be undone from the UI"
+                  : "Permanent for reported reports"}
+              </div>
+              <p className="text-xs leading-relaxed text-danger/80">
+                {deleteMode === "admin"
+                  ? "The report will be soft-deleted and disappear from all feeds, queues, and detail pages."
+                  : "You can only delete reports that are still in the REPORTED state."}
+              </p>
+            </div>
+          </div>
+
+          {deleteMode === "admin" ? (
+            <div>
+              <div className="flex items-baseline justify-between gap-3">
+                <label
+                  htmlFor="delete-reason"
+                  className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary"
+                >
+                  Reason
+                </label>
+                <span className="text-[11px] tabular-nums text-text-secondary">
+                  {deleteReason.length}/255
+                </span>
+              </div>
+              <textarea
+                id="delete-reason"
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                maxLength={255}
+                rows={3}
+                disabled={isDeleting}
+                className="mt-2 w-full resize-y rounded-xl border border-border-strong bg-surface px-3.5 py-2.5 text-sm leading-relaxed text-text-primary placeholder:text-text-secondary/60 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-surface-sunken"
+                placeholder="Optional — helps with audit trail"
+              />
+            </div>
+          ) : null}
+
+          {deleteError ? (
+            <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
+              <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
+                !
+              </span>
+              <span className="leading-relaxed">{deleteError.message}</span>
+            </div>
+          ) : null}
+
+          <div className="flex items-center justify-end gap-2.5 border-t border-border pt-5">
+            <button
+              type="button"
+              onClick={() => setDeleteOpen(false)}
+              disabled={isDeleting}
+              className="inline-flex items-center justify-center rounded-lg px-3.5 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              disabled={isDeleting || deleteMode === "none"}
+              onClick={() => {
+                if (deleteMode === "owner") {
+                  deleteMine.mutate(
+                    { id: report.id },
+                    {
+                      onSuccess: () => {
+                        setDeleteOpen(false);
+                        navigate("/", { replace: true });
+                      },
+                    },
+                  );
+                  return;
+                }
+
+                if (deleteMode === "admin") {
+                  const reason = deleteReason.trim().length ? deleteReason.trim() : undefined;
+                  deleteAdmin.mutate(
+                    { id: report.id, reason },
+                    {
+                      onSuccess: () => {
+                        setDeleteOpen(false);
+                        navigate("/", { replace: true });
+                      },
+                    },
+                  );
+                }
+              }}
+              className="inline-flex items-center justify-center rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-surface shadow-card transition-all hover:brightness-95 hover:shadow-card-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-danger/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+            >
+              {isDeleting ? "Deleting…" : "Delete report"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </>
   );
 };
 

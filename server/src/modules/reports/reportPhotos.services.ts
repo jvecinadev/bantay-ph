@@ -38,10 +38,12 @@ export const uploadReportPhotosService = async (args: {
   return prisma.$transaction(async (tx) => {
     const report = await tx.report.findUnique({
       where: { id: reportId },
-      select: { id: true, reporterId: true, status: true },
+      select: { id: true, reporterId: true, status: true, deletedAt: true },
     });
 
-    if (!report) throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
+    if (!report || report.deletedAt) {
+      throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
+    }
 
     if (report.reporterId !== actor.id) {
       throw new HttpError(403, "Forbidden", { code: "REPORT_FORBIDDEN" });

@@ -1,6 +1,7 @@
 import { http } from "../../lib/api/http";
 import type { Paginated, ReportCategory, ReportFeedItem, ReportMineItem, ReportStatus,
-      ReportDetail, ReportComment, ReportHistoryItem, ReportPhoto
+      ReportDetail, ReportComment, ReportHistoryItem, ReportPhoto,
+      SoftDeleteReportResponse
 } from "./types";
 
 type ApiEnvelope<T> = {
@@ -91,5 +92,21 @@ export const reportsApi = {
   getHistory: async (id: string) => {
     const res = await http.get<ApiEnvelope<{ history: ReportHistoryItem[] }>>(`/reports/${id}/history`);
     return res.data.data.history;
+  },
+
+  deleteMyReport: async (id: string): Promise<SoftDeleteReportResponse> => {
+    const res = await http.delete<ApiEnvelope<SoftDeleteReportResponse>>(`/reports/${id}`);
+    return res.data.data;
+  },
+
+  adminDeleteReport: async (
+    id: string,
+    reason?: string
+  ): Promise<SoftDeleteReportResponse> => {
+    const res = await http.delete<ApiEnvelope<SoftDeleteReportResponse>>(
+      `/admin/reports/${id}`,
+      { data: reason ? { reason } : undefined } // axios DELETE body
+    );
+    return res.data.data;
   },
 };

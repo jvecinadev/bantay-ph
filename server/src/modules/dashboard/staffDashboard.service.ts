@@ -1,58 +1,47 @@
-// src/modules/dashboard/staffDashboard.service.ts
 import { prisma } from "../../db/prisma";
 
 type CountMap = Record<string, number>;
 
 export async function getStaffDashboardService(userId: string) {
   const now = new Date();
-
-  // SLA: 48 hours
   const slaCutoff = new Date(now.getTime() - 48 * 60 * 60 * 1000);
-
-  // Last 7 days
   const last7DaysStart = new Date(now);
   last7DaysStart.setDate(last7DaysStart.getDate() - 7);
 
   const activeStatuses = ["ASSIGNED", "IN_PROGRESS"] as const;
 
   const [
-    // Queue
     unassignedVerifiedCount,
     unassignedVerifiedOverdue48hCount,
     unassignedVerifiedOldestAgg,
     unassignedVerifiedByCategoryRows,
-
-    // My workload
     myAssignedCountsRows,
     myOverdue48hCount,
-
-    // Throughput
     myResolvedLast7Days,
-
-    // Previews
     unassignedVerifiedPreview,
     myActiveReports,
   ] = await Promise.all([
     prisma.report.count({
-      where: { status: "VERIFIED", assignedToId: null },
+      where: { status: "VERIFIED", assignedToId: null, deletedAt: null },
     }),
 
     prisma.report.count({
       where: {
         status: "VERIFIED",
         assignedToId: null,
+        deletedAt: null,
         createdAt: { lte: slaCutoff },
       },
     }),
 
     prisma.report.aggregate({
-      where: { status: "VERIFIED", assignedToId: null },
+      where: { status: "VERIFIED", assignedToId: null, deletedAt: null },
       _min: { createdAt: true },
     }),
 
     prisma.report.groupBy({
       by: ["category"],
-      where: { status: "VERIFIED", assignedToId: null },
+      where: { status: "VERIFIED", assignedToId: null, deletedAt: null },
       _count: { _all: true },
     }),
 
@@ -60,6 +49,7 @@ export async function getStaffDashboardService(userId: string) {
       by: ["status"],
       where: {
         assignedToId: userId,
+        deletedAt: null,
         status: { in: [...activeStatuses] },
       },
       _count: { _all: true },
@@ -68,6 +58,7 @@ export async function getStaffDashboardService(userId: string) {
     prisma.report.count({
       where: {
         assignedToId: userId,
+        deletedAt: null,
         status: { in: [...activeStatuses] },
         assignedAt: { lte: slaCutoff },
       },
@@ -82,7 +73,7 @@ export async function getStaffDashboardService(userId: string) {
     }),
 
     prisma.report.findMany({
-      where: { status: "VERIFIED", assignedToId: null },
+      where: { status: "VERIFIED", assignedToId: null, deletedAt: null },
       orderBy: { createdAt: "asc" },
       take: 12,
       select: {
@@ -103,6 +94,7 @@ export async function getStaffDashboardService(userId: string) {
     prisma.report.findMany({
       where: {
         assignedToId: userId,
+        deletedAt: null,
         status: { in: [...activeStatuses] },
       },
       orderBy: [{ assignedAt: "asc" }, { createdAt: "asc" }],
@@ -146,7 +138,6 @@ export async function getStaffDashboardService(userId: string) {
     unassignedVerifiedPreview,
     myActiveReports,
 
-    // added (simple but more complete)
     unassignedVerifiedOverdue48hCount,
     unassignedVerifiedOldestCreatedAt: unassignedVerifiedOldestAgg._min.createdAt,
     unassignedVerifiedByCategory,

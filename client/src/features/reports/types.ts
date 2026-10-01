@@ -130,3 +130,10 @@ export type ReportPhoto = {
   providerFileId: string;
   createdAt: string;
 };
+
+export type SoftDeleteReportResponse = {
+  report: {
+    id: string;
+    deletedAt: string;
+  };
+};

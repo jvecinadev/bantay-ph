@@ -64,7 +64,6 @@ export const createReportService = async (reporterId: string, input: CreateRepor
 
   return result;
 };
-
 export const getMyReportsService = async (reporterId: string, query: GetUserReportQuery) => {
   const page = query.page;
   const limit = query.limit;
@@ -72,6 +71,7 @@ export const getMyReportsService = async (reporterId: string, query: GetUserRepo
 
   const where: Prisma.ReportWhereInput = {
     reporterId,
+    deletedAt: null,
     ...(query.category ? { category: query.category } : {}),
     ...(query.status ? { status: query.status } : {}),
   };
@@ -130,12 +130,13 @@ export const getReportByIdService = async (reportId: string, requester: Requeste
       status: true,
       createdAt: true,
       updatedAt: true,
+      deletedAt: true,
 
       assignedToId: true,
       assignedAt: true,
 
       reporter: {
-        select: { id: true, name: true, email: true, profile: { select: { avatarUrl: true }} },
+        select: { id: true, name: true, email: true, profile: { select: { avatarUrl: true } } },
       },
       assignedTo: {
         select: { id: true, name: true, email: true },
@@ -152,22 +153,12 @@ export const getReportByIdService = async (reportId: string, requester: Requeste
     },
   });
 
-  if (!report) {
+  if (!report || report.deletedAt) {
     throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
   }
 
   return report;
 };
-
-export const assertReportStatus = (report: { status: ReportStatus }, allowed: ReportStatus[], message: string) => {
-  if (!allowed.includes(report.status)) {
-    throw new HttpError(409, message, {
-      code: "REPORT_INVALID_STATUS",
-      details: { current: report.status, allowed },
-    });
-  }
-};
-
 
 export const getStaffQueueService = async (query: StaffQueueQuery) => {
   const { page, limit, skip } = computePaging(query.page, query.limit);
@@ -175,6 +166,7 @@ export const getStaffQueueService = async (query: StaffQueueQuery) => {
   const where: Prisma.ReportWhereInput = {
     status: "VERIFIED",
     assignedToId: null,
+    deletedAt: null,
   };
 
   const [total, reports] = await Promise.all([
@@ -215,7 +207,6 @@ export const getStaffQueueService = async (query: StaffQueueQuery) => {
   };
 };
 
-
 export const assignReportToSelfService = async (reportId: string, staffId: string) => {
   return prisma.$transaction(async (tx) => {
     const now = new Date();
@@ -225,6 +216,7 @@ export const assignReportToSelfService = async (reportId: string, staffId: strin
         id: reportId,
         status: "VERIFIED",
         assignedToId: null,
+        deletedAt: null,
       },
       data: {
         assignedToId: staffId,
@@ -236,10 +228,10 @@ export const assignReportToSelfService = async (reportId: string, staffId: strin
     if (updated.count === 0) {
       const existing = await tx.report.findUnique({
         where: { id: reportId },
-        select: { id: true, status: true, assignedToId: true },
+        select: { id: true, status: true, assignedToId: true, deletedAt: true },
       });
 
-      if (!existing) {
+      if (!existing || existing.deletedAt) {
         throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
       }
 
@@ -330,10 +322,11 @@ export const updateAssignedReportStatusService = async (args: {
         id: true,
         status: true,
         assignedToId: true,
+        deletedAt: true,
       },
     });
 
-    if (!report) {
+    if (!report || report.deletedAt) {
       throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
     }
 
@@ -356,6 +349,7 @@ export const updateAssignedReportStatusService = async (args: {
         id: reportId,
         assignedToId: staffId,
         status: report.status,
+        deletedAt: null,
       },
       data: {
         status: newStatus,
@@ -405,4 +399,53 @@ export const updateAssignedReportStatusService = async (args: {
 
     return updatedReport;
   });
+};
+
+
+export const softDeleteReportAsOwnerService = async (reportId: string, userId: string) => {
+  const report = await prisma.report.findUnique({
+    where: { id: reportId },
+    select: {
+      id: true,
+      reporterId: true,
+      status: true,
+      deletedAt: true,
+    },
+  });
+
+  if (!report) throw new HttpError(404, "Report not found");
+  if (report.deletedAt) throw new HttpError(409, "Report is already deleted");
+  if (report.reporterId !== userId) throw new HttpError(403, "You do not own this report");
+
+  if (report.status !== "REPORTED") {
+    throw new HttpError(409, "Only REPORTED reports can be deleted");
+  }
+
+  const now = new Date();
+
+  const updated = await prisma.$transaction(async (tx: any) => {
+    const r = await tx.report.update({
+      where: { id: reportId },
+      data: {
+        deletedAt: now,
+        deletedById: userId,
+        deletedReason: null,
+      },
+      select: { id: true, deletedAt: true },
+    });
+
+    await tx.auditLog.create({
+      data: {
+        userId,
+        action: "REPORT_SOFT_DELETED",
+        entityType: "REPORT",
+        entityId: reportId,
+        details: JSON.stringify({ mode: "owner" }),
+      },
+    });
+
+    return r;
+  });
+
+  return updated; 
 };

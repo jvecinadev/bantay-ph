@@ -7,7 +7,7 @@ export const FEED_VISIBLE_STATUSES: ReportStatus[] = ["VERIFIED", "ASSIGNED", "I
 
 export const assertCanReadReport = async (reportId: string, actor: Actor) => {
   const report = await prisma.report.findUnique({
-    where: { id: reportId },
+    where: { id: reportId, deletedAt: null },
     select: { id: true, reporterId: true, status: true },
   });
 

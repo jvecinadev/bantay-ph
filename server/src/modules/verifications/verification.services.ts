@@ -1,4 +1,3 @@
-
 import { prisma } from "../../db/prisma";
 import { HttpError } from "../../common/errors/httpErrors";
 import { Prisma, ReportStatus, VerificationResult } from "@prisma/client";
@@ -18,13 +17,12 @@ const mapVerificationResultToReportStatus = (result: VerificationResult): Report
 const isUniqueConstraintError = (err: unknown) =>
   err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
 
-
 export const getVerificationQueueService = async (query: VerificationQueueQuery) => {
   const page = query.page;
   const limit = query.limit;
   const skip = (page - 1) * limit;
 
-  const where: Prisma.ReportWhereInput = { status: "REPORTED" };
+  const where: Prisma.ReportWhereInput = { status: "REPORTED", deletedAt: null };
 
   const [total, reports] = await Promise.all([
     prisma.report.count({ where }),
@@ -43,7 +41,7 @@ export const getVerificationQueueService = async (query: VerificationQueueQuery)
         status: true,
         createdAt: true,
         reporter: { select: { id: true, name: true } },
-         photos: {
+        photos: {
           orderBy: { createdAt: "asc" },
           select: {
             id: true,
@@ -67,17 +65,17 @@ export const getVerificationQueueService = async (query: VerificationQueueQuery)
 export const claimReportForVerificationService = async (reportId: string, validatorId: string) => {
   return prisma.$transaction(async (tx) => {
     const updated = await tx.report.updateMany({
-      where: { id: reportId, status: "REPORTED" },
+      where: { id: reportId, status: "REPORTED", deletedAt: null },
       data: { status: "UNDER_VERIFICATION" },
     });
 
     if (updated.count === 0) {
       const exists = await tx.report.findUnique({
         where: { id: reportId },
-        select: { id: true, status: true },
+        select: { id: true, status: true, deletedAt: true },
       });
 
-      if (!exists) {
+      if (!exists || exists.deletedAt) {
         throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
       }
 
@@ -95,10 +93,13 @@ export const claimReportForVerificationService = async (reportId: string, valida
         category: true,
         status: true,
         updatedAt: true,
+        deletedAt: true,
       },
     });
 
-    if (!report) throw new HttpError(500, "Unexpected error after claim", { code: "INTERNAL_ERROR" });
+    if (!report || report.deletedAt) {
+      throw new HttpError(500, "Unexpected error after claim", { code: "INTERNAL_ERROR" });
+    }
 
     await tx.reportStatusHistory.create({
       data: {
@@ -132,10 +133,10 @@ export const verifyReportService = async (
   return prisma.$transaction(async (tx) => {
     const report = await tx.report.findUnique({
       where: { id: reportId },
-      select: { id: true, status: true, title: true, category: true },
+      select: { id: true, status: true, title: true, category: true, deletedAt: true },
     });
 
-    if (!report) {
+    if (!report || report.deletedAt) {
       throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
     }
 
@@ -178,11 +179,20 @@ export const verifyReportService = async (
     }
 
     const statusUpdate = await tx.report.updateMany({
-      where: { id: reportId, status: "UNDER_VERIFICATION" },
+      where: { id: reportId, status: "UNDER_VERIFICATION", deletedAt: null },
       data: { status: newStatus },
     });
 
     if (statusUpdate.count === 0) {
+      const exists = await tx.report.findUnique({
+        where: { id: reportId },
+        select: { id: true, deletedAt: true },
+      });
+
+      if (!exists || exists.deletedAt) {
+        throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
+      }
+
       throw new HttpError(409, "Report status changed. Please refresh and try again.", {
         code: "REPORT_STATUS_CHANGED",
       });
@@ -219,8 +229,13 @@ export const verifyReportService = async (
         category: true,
         status: true,
         updatedAt: true,
+        deletedAt: true,
       },
     });
+
+    if (!updatedReport || updatedReport.deletedAt) {
+      throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
+    }
 
     return {
       report: updatedReport,
