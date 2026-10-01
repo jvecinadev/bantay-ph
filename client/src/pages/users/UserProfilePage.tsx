@@ -20,12 +20,17 @@ const UserProfilePage = () => {
   const publicQ = usePublicUserProfileQuery(userId, !!userId);
   const privateQ = useAdminUserPrivateProfileQuery(userId, canViewPrivate && !!userId);
 
-  const isPrivate = useMemo(() => !!privateQ.data, [privateQ.data]);
-  const isLoading = !!userId && (publicQ.isLoading || (canViewPrivate && privateQ.isLoading));
+  const isPrivate = useMemo(
+    () => canViewPrivate && !!privateQ.data,
+    [canViewPrivate, privateQ.data],
+  );
+
+  const isLoading =
+    !!userId && (publicQ.isLoading || (canViewPrivate && privateQ.isLoading));
 
   if (!userId) {
     return (
-      <div className="mx-auto w-full max-w-5xl">
+      <div className="mx-auto w-full max-w-2xl">
         <div className="rounded-2xl border border-dashed border-border-strong bg-surface-sunken px-6 py-14 text-center">
           <div className="text-sm font-semibold text-text-primary">
             No user selected
@@ -40,7 +45,12 @@ const UserProfilePage = () => {
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-5xl space-y-10">
+      <div
+        className={[
+          "mx-auto w-full space-y-10",
+          canViewPrivate ? "max-w-5xl" : "max-w-2xl",
+        ].join(" ")}
+      >
         <div className="animate-pulse space-y-2">
           <div className="h-7 w-32 rounded bg-surface-sunken" />
           <div className="h-3 w-64 rounded bg-surface-sunken" />
@@ -52,36 +62,37 @@ const UserProfilePage = () => {
             <div className="flex-1 space-y-2.5">
               <div className="h-5 w-48 rounded bg-surface-sunken" />
               <div className="h-3 w-32 rounded bg-surface-sunken" />
-              <div className="h-5 w-40 rounded-full bg-surface-sunken" />
             </div>
           </div>
         </div>
 
-        <div className="grid gap-x-16 gap-y-10 lg:grid-cols-2">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-3 w-20 rounded bg-surface-sunken" />
-              <div className="mt-3 divide-y divide-border border-y border-border">
-                {[...Array(5)].map((_, j) => (
-                  <div
-                    key={j}
-                    className="grid grid-cols-[140px_1fr] items-center gap-x-6 py-2.5"
-                  >
-                    <div className="h-3 w-20 rounded bg-surface-sunken" />
-                    <div className="h-3 w-32 rounded bg-surface-sunken" />
-                  </div>
-                ))}
+        {canViewPrivate ? (
+          <div className="grid gap-x-16 gap-y-10 lg:grid-cols-2">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-3 w-20 rounded bg-surface-sunken" />
+                <div className="mt-3 divide-y divide-border border-y border-border">
+                  {[...Array(5)].map((_, j) => (
+                    <div
+                      key={j}
+                      className="grid grid-cols-[140px_1fr] items-center gap-x-6 py-2.5"
+                    >
+                      <div className="h-3 w-20 rounded bg-surface-sunken" />
+                      <div className="h-3 w-32 rounded bg-surface-sunken" />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : null}
       </div>
     );
   }
 
   if (publicQ.isError) {
     return (
-      <div className="mx-auto w-full max-w-5xl">
+      <div className="mx-auto w-full max-w-2xl">
         <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-light px-4 py-3 text-sm text-danger">
           <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-danger/20 text-[10px] font-bold">
             !
@@ -96,10 +107,15 @@ const UserProfilePage = () => {
   const priv = privateQ.data?.user;
 
   const name = priv?.name ?? pub?.name ?? "User";
-  const avatarUrl = priv?.profile.avatarUrl ?? pub?.profile?.avatarUrl ?? null;
+  const avatarUrl = priv?.profile.avatarUrl ?? pub?.avatarUrl ?? null;
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-10">
+    <div
+      className={[
+        "mx-auto w-full space-y-10",
+        isPrivate ? "max-w-5xl" : "max-w-2xl",
+      ].join(" ")}
+    >
       <header>
         <div className="flex flex-wrap items-center gap-2.5">
           <h1 className="text-2xl font-bold tracking-tight text-text-primary">
@@ -107,6 +123,7 @@ const UserProfilePage = () => {
           </h1>
           <ProfileModePill mode={isPrivate ? "private" : "public"} />
         </div>
+
         <p className="mt-1.5 text-sm text-text-secondary">
           {isPrivate
             ? "Full account details and address information."
@@ -157,7 +174,10 @@ const UserProfilePage = () => {
       ) : null}
 
       {!isPrivate && pub ? (
-        <DataSection title="Public info">
+        <DataSection
+          title="Public info"
+          description="Visible to everyone"
+        >
           <DataRow label="User ID" value={pub.id} mono />
         </DataSection>
       ) : null}
