@@ -1,5 +1,6 @@
 import { prisma } from "../../db/prisma";
 import { Prisma } from "@prisma/client";
+import { HttpError } from "../../common/errors/httpErrors";
 import { assertCanReadReport, FEED_VISIBLE_STATUSES } from "./reportAccess.policy";
 
 type Actor = { id: string; roleName: string };
@@ -15,6 +16,7 @@ export const getFeedReportsService = async (args: {
 
   const where: Prisma.ReportWhereInput = {
     status: { in: FEED_VISIBLE_STATUSES },
+    deletedAt: null,
     ...(category ? { category: category as any } : {}),
   };
 
@@ -35,16 +37,15 @@ export const getFeedReportsService = async (args: {
         status: true,
         createdAt: true,
         updatedAt: true,
-        reporter: { select: { id: true, name: true, profile: { select: {avatarUrl: true }} } },
-        photos: { 
+        reporter: { select: { id: true, name: true, profile: { select: { avatarUrl: true } } } },
+        photos: {
           orderBy: { createdAt: "asc" },
           select: {
             id: true,
             url: true,
             createdAt: true,
           },
-         }
-
+        },
       },
     }),
   ]);
@@ -66,6 +67,13 @@ export const addReportCommentService = async (args: {
   const { reportId, actor, comment } = args;
 
   return prisma.$transaction(async (tx) => {
+    const exists = await tx.report.findFirst({
+      where: { id: reportId, deletedAt: null },
+      select: { id: true },
+    });
+
+    if (!exists) throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
+
     await assertCanReadReport(reportId, actor);
 
     const created = await tx.reportComment.create({
@@ -78,7 +86,7 @@ export const addReportCommentService = async (args: {
         id: true,
         comment: true,
         createdAt: true,
-        user: { select: { id: true, name: true, profile: { select: { avatarUrl: true }} } },
+        user: { select: { id: true, name: true, profile: { select: { avatarUrl: true } } } },
       },
     });
 
@@ -99,6 +107,13 @@ export const addReportCommentService = async (args: {
 export const getReportCommentsService = async (args: { reportId: string; actor: Actor }) => {
   const { reportId, actor } = args;
 
+  const exists = await prisma.report.findFirst({
+    where: { id: reportId, deletedAt: null },
+    select: { id: true },
+  });
+
+  if (!exists) throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
+
   await assertCanReadReport(reportId, actor);
 
   return prisma.reportComment.findMany({
@@ -108,13 +123,20 @@ export const getReportCommentsService = async (args: { reportId: string; actor: 
       id: true,
       comment: true,
       createdAt: true,
-      user: { select: { id: true, name: true, profile: { select: { avatarUrl: true }} } },
+      user: { select: { id: true, name: true, profile: { select: { avatarUrl: true } } } },
     },
   });
 };
 
 export const getReportHistoryService = async (args: { reportId: string; actor: Actor }) => {
   const { reportId, actor } = args;
+
+  const exists = await prisma.report.findFirst({
+    where: { id: reportId, deletedAt: null },
+    select: { id: true },
+  });
+
+  if (!exists) throw new HttpError(404, "Report not found", { code: "REPORT_NOT_FOUND" });
 
   await assertCanReadReport(reportId, actor);
 
@@ -127,7 +149,14 @@ export const getReportHistoryService = async (args: { reportId: string; actor: A
       newStatus: true,
       remarks: true,
       createdAt: true,
-      author: { select: { id: true, name: true, role: { select: { name: true } }, profile: { select: { avatarUrl: true }} } },
+      author: {
+        select: {
+          id: true,
+          name: true,
+          role: { select: { name: true } },
+          profile: { select: { avatarUrl: true } },
+        },
+      },
     },
   });
 };

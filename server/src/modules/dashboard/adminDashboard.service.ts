@@ -1,4 +1,3 @@
-// src/modules/dashboard/adminDashboard.service.ts
 import { prisma } from "../../db/prisma";
 import { ReportStatus, UserStatus } from "@prisma/client";
 
@@ -25,13 +24,11 @@ export async function getAdminDashboardService() {
   ];
 
   const [
-    // Users
     totalUsers,
     activeUsers,
     inactiveUsers,
     usersByRoleRows,
 
-    // Reports
     totalReports,
     reportsLast7Days,
     verifiedUnassignedCount,
@@ -39,25 +36,20 @@ export async function getAdminDashboardService() {
     reportsByStatusRows,
     reportsByCategoryRows,
 
-    // Verification snapshot
     pendingReportedCount,
     underVerificationCount,
 
-    // Outcomes last 7 days
     verificationOutcomesLast7DaysRows,
     resolvedLast7Days,
 
-    // Staff workload (team-wide)
     activeAssignedCount,
     overdue48hAssignedCount,
     activeByStaffRows,
 
-    // Previews
     recentReports,
     recentVerifications,
     recentAuditLogs,
   ] = await Promise.all([
-    // --- Users ---
     prisma.user.count(),
     prisma.user.count({ where: { status: UserStatus.ACTIVE } }),
     prisma.user.count({ where: { status: UserStatus.INACTIVE } }),
@@ -68,14 +60,14 @@ export async function getAdminDashboardService() {
       orderBy: { _count: { roleId: "desc" } },
     }),
 
-    // --- Reports ---
-    prisma.report.count(),
-    prisma.report.count({ where: { createdAt: { gte: last7DaysStart } } }),
+    prisma.report.count({ where: { deletedAt: null } }),
+    prisma.report.count({ where: { deletedAt: null, createdAt: { gte: last7DaysStart } } }),
     prisma.report.count({
-      where: { status: ReportStatus.VERIFIED, assignedToId: null },
+      where: { deletedAt: null, status: ReportStatus.VERIFIED, assignedToId: null },
     }),
     prisma.report.count({
       where: {
+        deletedAt: null,
         status: ReportStatus.VERIFIED,
         assignedToId: null,
         createdAt: { lte: sla48hCutoff },
@@ -83,18 +75,18 @@ export async function getAdminDashboardService() {
     }),
     prisma.report.groupBy({
       by: ["status"],
+      where: { deletedAt: null },
       _count: { _all: true },
     }),
     prisma.report.groupBy({
       by: ["category"],
+      where: { deletedAt: null },
       _count: { _all: true },
     }),
 
-    // --- Verification snapshot ---
-    prisma.report.count({ where: { status: ReportStatus.REPORTED } }),
-    prisma.report.count({ where: { status: ReportStatus.UNDER_VERIFICATION } }),
+    prisma.report.count({ where: { deletedAt: null, status: ReportStatus.REPORTED } }),
+    prisma.report.count({ where: { deletedAt: null, status: ReportStatus.UNDER_VERIFICATION } }),
 
-    // --- Verification outcomes last 7 days (from history) ---
     prisma.reportStatusHistory.groupBy({
       by: ["newStatus"],
       where: {
@@ -102,27 +94,29 @@ export async function getAdminDashboardService() {
         newStatus: {
           in: [ReportStatus.VERIFIED, ReportStatus.REJECTED, ReportStatus.DUPLICATE],
         },
+        report: { deletedAt: null },
       },
       _count: { _all: true },
     }),
 
-    // --- Resolved throughput last 7 days ---
     prisma.reportStatusHistory.count({
       where: {
         newStatus: ReportStatus.RESOLVED,
         createdAt: { gte: last7DaysStart },
+        report: { deletedAt: null },
       },
     }),
 
-    // --- Staff workload ---
     prisma.report.count({
       where: {
+        deletedAt: null,
         assignedToId: { not: null },
         status: { in: activeStaffStatuses },
       },
     }),
     prisma.report.count({
       where: {
+        deletedAt: null,
         assignedToId: { not: null },
         status: { in: activeStaffStatuses },
         assignedAt: { lte: sla48hCutoff },
@@ -132,6 +126,7 @@ export async function getAdminDashboardService() {
     prisma.report.groupBy({
       by: ["assignedToId"],
       where: {
+        deletedAt: null,
         assignedToId: { not: null },
         status: { in: activeStaffStatuses },
       },
@@ -140,8 +135,8 @@ export async function getAdminDashboardService() {
       take: 10,
     }),
 
-    // --- Recent reports preview ---
     prisma.report.findMany({
+      where: { deletedAt: null },
       orderBy: { createdAt: "desc" },
       take: 10,
       select: {
@@ -159,12 +154,12 @@ export async function getAdminDashboardService() {
       },
     }),
 
-    // --- Recent verifications preview (status history) ---
     prisma.reportStatusHistory.findMany({
       where: {
         newStatus: {
           in: [ReportStatus.VERIFIED, ReportStatus.REJECTED, ReportStatus.DUPLICATE],
         },
+        report: { deletedAt: null },
       },
       orderBy: { createdAt: "desc" },
       take: 10,
@@ -180,7 +175,6 @@ export async function getAdminDashboardService() {
       },
     }),
 
-    // --- Recent audit logs preview ---
     prisma.auditLog.findMany({
       orderBy: { createdAt: "desc" },
       take: 20,
@@ -196,7 +190,6 @@ export async function getAdminDashboardService() {
     }),
   ]);
 
-  // Role names (small follow-up query)
   const roleIds = usersByRoleRows.map((r) => r.roleId);
   const roles = roleIds.length
     ? await prisma.role.findMany({
@@ -223,7 +216,6 @@ export async function getAdminDashboardService() {
     outcomesLast7Days[String(r.newStatus)] = countAll(r._count);
   }
 
-  // Staff names for top assignees (small follow-up query)
   const staffIds = activeByStaffRows
     .map((r) => r.assignedToId)
     .filter((v): v is string => Boolean(v));
