@@ -4,6 +4,7 @@ export const ROUTES = {
   register: "/register",
 
   profilePage: "/account/profile",
+  adminViewProfile: "",
   userSettings: "/user/settings",
 
   feed: "/feed",
