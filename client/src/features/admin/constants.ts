@@ -14,27 +14,34 @@ export const ROLE_TINTS: Record<string, string> = {
   ADMIN: "bg-primary-light text-primary",
 };
 
-export const ACTION_TINTS: Record<string, string> = {
+type ActionKind = "create" | "update" | "delete" | "success" | "auth" | "default";
+
+export const ACTION_TINTS: Record<ActionKind, string> = {
   create: "bg-success-light text-success",
   update: "bg-status-verified-bg text-status-verified",
   delete: "bg-danger-light text-danger",
+  success: "bg-status-resolved-bg text-status-resolved",
   auth: "bg-status-assigned-bg text-status-assigned",
   default: "bg-surface-sunken text-text-secondary",
 };
 
-export const getActionKind = (action: string): keyof typeof ACTION_TINTS => {
+export const getActionKind = (action: string): ActionKind => {
   const a = action.toUpperCase();
-  if (a.includes("DELETE") || a.includes("REMOVE") || a.includes("REJECT")) {
+
+  if (a.includes("DELETED") || a.includes("REJECTED") || a.includes("REMOVED")) {
     return "delete";
   }
-  if (a.includes("CREATE") || a.includes("ADD") || a.includes("APPROVE")) {
+  if (a.includes("CREATED") || a.includes("UPLOADED") || a.includes("ADDED")) {
     return "create";
   }
-  if (a.includes("UPDATE") || a.includes("EDIT") || a.includes("CHANGE")) {
-    return "update";
+  if (a.includes("VERIFIED") || a.includes("RESOLVED") || a.includes("APPROVED")) {
+    return "success";
   }
   if (a.includes("LOGIN") || a.includes("LOGOUT") || a.includes("AUTH")) {
     return "auth";
+  }
+  if (a.includes("UPDATED") || a.includes("CHANGED") || a.includes("ASSIGNED") || a.includes("CLAIMED")) {
+    return "update";
   }
   return "default";
 };
