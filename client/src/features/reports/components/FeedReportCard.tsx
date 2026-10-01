@@ -7,6 +7,7 @@ type FeedReportCardProps = {
   description?: string | null;
   createdAt: string;
   status: string;
+  reporterId?: string | null;
   reporterName?: string;
   reporterPhoto?: string | null;
   category?: string | null;
@@ -19,6 +20,7 @@ const FeedReportCard = ({
   description,
   createdAt,
   status,
+  reporterId,
   reporterName,
   reporterPhoto,
   category,
@@ -28,59 +30,85 @@ const FeedReportCard = ({
   const photoCount = photos.length;
   const initials = getInitials(reporterName);
   const formattedDate = new Date(createdAt).toLocaleString();
+  const hasProfile = !!reporterId;
+  const profilePath = hasProfile ? `/user/${reporterId}/profile` : "";
+  const reporterLabel = reporterName ?? "Unknown";
+
+  const avatar = reporterPhoto ? (
+    <img
+      src={reporterPhoto}
+      alt=""
+      className="h-full w-full object-cover"
+      loading="lazy"
+      decoding="async"
+      draggable={false}
+    />
+  ) : (
+    <span className="flex h-full w-full items-center justify-center text-[11px] font-bold text-primary">
+      {initials}
+    </span>
+  );
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover">
+      <div className="px-5 pt-5 sm:px-6 sm:pt-6">
+        <div className="flex items-center gap-3">
+          {hasProfile ? (
+            <Link
+              to={profilePath}
+              aria-label={`View ${reporterLabel}'s profile`}
+              className="block h-9 w-9 shrink-0 overflow-hidden rounded-full border border-border bg-primary-light transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+            >
+              {avatar}
+            </Link>
+          ) : (
+            <span className="block h-9 w-9 shrink-0 overflow-hidden rounded-full border border-border bg-primary-light">
+              {avatar}
+            </span>
+          )}
+
+          <div className="min-w-0 flex-1">
+            <div className="flex min-w-0 items-baseline gap-1.5 text-xs">
+              {hasProfile ? (
+                <Link
+                  to={profilePath}
+                  className="truncate font-semibold text-text-primary transition-colors hover:text-primary focus:outline-none focus-visible:underline"
+                >
+                  {reporterLabel}
+                </Link>
+              ) : (
+                <span className="truncate font-semibold text-text-primary">
+                  {reporterLabel}
+                </span>
+              )}
+              <span className="shrink-0 text-text-secondary/50">·</span>
+              <span className="shrink-0 text-text-secondary">
+                {formattedDate}
+              </span>
+            </div>
+
+            {category ? (
+              <div className="mt-1 flex items-center gap-1.5 text-[11px] text-text-secondary">
+                <span className="h-1 w-1 shrink-0 rounded-full bg-primary" />
+                <span className="truncate uppercase tracking-wider">
+                  {category}
+                </span>
+              </div>
+            ) : null}
+          </div>
+
+          <span className="shrink-0 rounded-full bg-surface-sunken px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-text-secondary">
+            {status}
+          </span>
+        </div>
+      </div>
+
       <Link
         to={`/reports/${id}`}
         className="block focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
       >
-        <div className="px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-5">
-          <div className="flex items-center gap-3">
-            {reporterPhoto ? (
-              <span className="block h-9 w-9 shrink-0 overflow-hidden rounded-full border border-border bg-surface-sunken">
-                <img
-                  src={reporterPhoto}
-                  alt=""
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                  draggable={false}
-                />
-              </span>
-            ) : (
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-light text-[11px] font-bold text-primary">
-                {initials}
-              </span>
-            )}
-
-            <div className="min-w-0 flex-1">
-              <div className="flex min-w-0 items-baseline gap-1.5 text-xs">
-                <span className="truncate font-semibold text-text-primary">
-                  {reporterName ?? "Unknown"}
-                </span>
-                <span className="shrink-0 text-text-secondary/50">·</span>
-                <span className="shrink-0 text-text-secondary">
-                  {formattedDate}
-                </span>
-              </div>
-
-              {category ? (
-                <div className="mt-1 flex items-center gap-1.5 text-[11px] text-text-secondary">
-                  <span className="h-1 w-1 shrink-0 rounded-full bg-primary" />
-                  <span className="truncate uppercase tracking-wider">
-                    {category}
-                  </span>
-                </div>
-              ) : null}
-            </div>
-
-            <span className="shrink-0 rounded-full bg-surface-sunken px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-text-secondary">
-              {status}
-            </span>
-          </div>
-
-          <h3 className="mt-4 text-xl font-bold leading-tight tracking-tight text-text-primary transition-colors group-hover:text-primary sm:text-[1.5rem]">
+        <div className="px-5 pt-4 pb-4 sm:px-6 sm:pt-4 sm:pb-5">
+          <h3 className="text-xl font-bold leading-tight tracking-tight text-text-primary transition-colors group-hover:text-primary sm:text-[1.5rem]">
             {title}
           </h3>
 

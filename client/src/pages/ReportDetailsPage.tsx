@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import useAuthStore from "../stores/authStore";
 import { getInitials } from "../lib/helper/getInitials";
 
@@ -118,8 +118,27 @@ const ReportDetailPage = () => {
     );
   }
 
+  const reporterId = report.reporter?.id ?? null;
+  const reporterName = report.reporter?.name ?? "Unknown";
   const reporterPhoto = report.reporter?.profile?.avatarUrl ?? null;
-  const reporterInitials = getInitials(report.reporter?.name);
+  const reporterInitials = getInitials(reporterName);
+  const hasProfile = !!reporterId;
+  const profilePath = hasProfile ? `/user/${reporterId}/profile` : "";
+
+  const avatar = reporterPhoto ? (
+    <img
+      src={reporterPhoto}
+      alt=""
+      className="h-full w-full object-cover"
+      loading="lazy"
+      decoding="async"
+      draggable={false}
+    />
+  ) : (
+    <span className="flex h-full w-full items-center justify-center text-[10px] font-bold text-primary">
+      {reporterInitials}
+    </span>
+  );
 
   return (
     <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:gap-8">
@@ -152,25 +171,32 @@ const ReportDetailPage = () => {
 
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary">
             <span className="inline-flex items-center gap-2">
-              {reporterPhoto ? (
-                <span className="block h-6 w-6 shrink-0 overflow-hidden rounded-full border border-border bg-surface-sunken">
-                  <img
-                    src={reporterPhoto}
-                    alt=""
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                    draggable={false}
-                  />
-                </span>
+              {hasProfile ? (
+                <Link
+                  to={profilePath}
+                  aria-label={`View ${reporterName}'s profile`}
+                  className="block h-6 w-6 shrink-0 overflow-hidden rounded-full border border-border bg-primary-light transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+                >
+                  {avatar}
+                </Link>
               ) : (
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-light text-[10px] font-bold text-primary">
-                  {reporterInitials}
+                <span className="block h-6 w-6 shrink-0 overflow-hidden rounded-full border border-border bg-primary-light">
+                  {avatar}
                 </span>
               )}
-              <span className="font-medium text-text-primary">
-                {report.reporter?.name}
-              </span>
+
+              {hasProfile ? (
+                <Link
+                  to={profilePath}
+                  className="font-medium text-text-primary transition-colors hover:text-primary focus:outline-none focus-visible:underline"
+                >
+                  {reporterName}
+                </Link>
+              ) : (
+                <span className="font-medium text-text-primary">
+                  {reporterName}
+                </span>
+              )}
             </span>
             <span className="text-text-secondary/50">·</span>
             <span>{new Date(report.createdAt).toLocaleString()}</span>
