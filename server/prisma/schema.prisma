@@ -265,3 +265,25 @@ model UserSettings {
 
   @@map("user_settings")
 }
+
+model AuditLogArchive {
+  // NOTE: id is NOT @id because partitioned tables require
+  // PK/UNIQUE keys to include the partition column (createdAt).
+  id         String   @db.VarChar(36)
+  userId     String   @map("user_id") @db.VarChar(36)
+  action     String   @db.VarChar(100)
+  entityType String   @map("entity_type") @db.VarChar(50)
+  entityId   String?  @map("entity_id") @db.VarChar(191)
+  details    String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  // composite PK required for partitioning by createdAt
+  @@id([createdAt, id])
+
+  // helpful indexes
+  @@index([id])
+  @@index([userId])
+  @@index([entityType, entityId])
+
+  @@map("audit_logs_archive")
+}
